@@ -18,10 +18,10 @@ const Login = () => {
     const setToken = useSettingsStore(state => get(state, 'setToken', () => {
     }))
     const onSubmit = (data) => {
-        signIn("credentials", {
-            email: get(data, 'email'),
-            password: get(data, 'password'),
-        })
+        // signIn("credentials", {
+        //     email: get(data, 'email'),
+        //     password: get(data, 'password'),
+        // })
         signupRequest({
                 url: URLS.login,
                 attributes: {...data}
