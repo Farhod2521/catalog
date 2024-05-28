@@ -111,7 +111,7 @@ const Index = () => {
         <Dashboard>
             <Subheader title={'Mening buyurtmalarim'} />
             <div className="p-7">
-
+                
             </div>
         </Dashboard>
     );
