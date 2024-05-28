@@ -1,0 +1,97 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+body {
+    font-family: 'Rubik', sans-serif;
+    font-size: 16px;
+    color: #28366D;
+    font-weight: 400;
+}
+/* width */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+/* Track */
+::-webkit-scrollbar-track {
+    background: #ECECEC;
+}
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background:#28366D;
+}
+
+.Modal {
+    background: transparent;
+}
+
+.neon {
+    color: #fff;
+    text-shadow:
+            0 0 5px #fff,
+            0 0 10px #fff,
+            0 0 20px #fff,
+            0 0 40px #0ff,
+            0 0 80px #0ff,
+            0 0 90px #0ff,
+            0 0 100px #0ff,
+            0 0 150px #0ff;
+}
+.burger {
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+}
+
+.bar1, .bar2, .bar3 {
+    width: 25px;
+    height: 3px;
+    background-color: white;
+    margin: 4px 0;
+    transition: transform 0.3s, opacity 0.3s;
+}
+
+.open .bar1 {
+    transform: rotate(-45deg) translate(-5px, 5px);
+}
+
+.open .bar2 {
+    opacity: 0;
+}
+
+.open .bar3 {
+    transform: rotate(45deg) translate(-5px, -5px);
+}
+
+.dropdown-menu {
+    position: absolute;
+    transform: translateY(30px);
+    transition: 1s linear;
+}
+
+.dropdown:hover .dropdown-menu {
+    display: block;
+    top: 100%;
+    transform: translateY(0px);
+}
+
+.button-container {
+    display: flex;
+    width: 100%;
+    gap: 8px;
+    align-items: center;
+
+}
+
+
+.value {
+    width: 100%;
+    height: 68px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #4A64CA;
+    color: white;
+    border-radius: 15px;
+    font-size: 25px;
+}
