@@ -24,6 +24,8 @@ import {
   FullscreenControl,
 } from "@pbe/react-yandex-maps";
 import GridMakeOrder from "@/containers/grid-make-order";
+import Star from "@/components/stars/star";
+import StarRating from "@/components/stars/star-rating";
 
 const ViewPage = () => {
   const router = useRouter();
@@ -37,6 +39,12 @@ const ViewPage = () => {
     setSelectOrder(choose);
   };
 
+  const {data: ratingCompany, isLoading: isLoadingRatingCompany} = useGetQuery({
+      key: [KEYS.orderRatingCompany, stir],
+      url: `${URLS.orderRatingCompany}/${stir}/`,
+      enabled: !!stir,
+  })
+
   const {
     data: company,
     isLoading,
@@ -46,10 +54,17 @@ const ViewPage = () => {
     url: `${URLS.companies}${stir}/`,
     enabled: !!stir,
   });
+
   const { data: currency } = useGetQuery({
     key: KEYS.currency,
     url: URLS.currency,
   });
+
+    let averageRating = get(ratingCompany, "data.average_rating");
+    if (typeof averageRating !== 'number' || averageRating < 0 || !Number.isInteger(averageRating)) {
+        averageRating = 0; // Default to 0 if invalid
+    }
+
 
   const columns = [
     {
@@ -276,162 +291,191 @@ const ViewPage = () => {
                     />
                 )}
               </div>
-              <div className="laptop:col-span-7 col-span-12 !ml-0 flex flex-col  laptop:items-start laptop:justify-start items-center justify-center">
-                <div className="flex mb-2.5">
-                  <div
-                      className={"inline-flex mr-[10px] cursor-pointer text-center"}
-                  >
-                    <Image
-                        className={
-                          "laptop:mr-1.5 tablet:mr-1 mr-0.5 tablet:w-[20px] tablet:h-[20px] laptop:w-[24px] laptop:h-[24px] w-[18px] h-[18px]"
-                        }
-                        width={24}
-                        height={24}
-                        src={"/icons/stick.svg"}
-                        alt={"code"}
-                    />
-                  </div>
-                  <h2
-                      className={
-                        "text-[#212529] laptop:text-base tablet:text-sm text-xs font-medium "
-                      }
-                  >
-                    {get(company, "data.company_name")}
-                  </h2>
-                </div>
-
-                <div className="flex flex-col laptop:items-start items-center mt-2.5">
-                  <div
-                      className={
-                        "mb-[10px] laptop:text-base tablet:text-sm text-xs  text-[#4B5055]"
-                      }
-                  >
-                    <strong className={"text-[#000]"}>{t("Rahbar")}:</strong>{" "}
-                    {get(company, "data.company_ceo")}
-                  </div>
-
-                  {get(company, "data.company_email", "-") ? (
-                      <div
-                          className={
-                            "mb-[10px] text-[#4B5055] laptop:text-base text-sm"
-                          }
-                      >
-                        <strong className={"text-[#000]"}>
-                          {t("Elektron-pochta")}:
-                        </strong>{" "}
-                        {get(company, "data.company_email", "-")}
-                      </div>
-                  ) : (
-                      ""
-                  )}
-                  {get(company, "data.company_phone_main", "-") ? (
-                      <div
-                          className={
-                            "mb-[10px] text-[#4B5055] laptop:text-base tablet:text-sm text-xs"
-                          }
-                      >
-                        <strong className={"text-[#000]"}>{t("Telefon")}:</strong>{" "}
-                        {get(company, "company_phone_main", "-")}
-                      </div>
-                  ) : (
-                      <div
-                          className={
-                            "mb-[10px] text-[#4B5055] laptop:text-base tablet:text-sm text-xs"
-                          }
-                      >
-                        <p>
-                          {" "}
-                          <strong className={"text-[#000]"}>
-                            {t("Telefon")}:{" "}
-                          </strong>{" "}
-                          -
-                        </p>
-                      </div>
-                  )}
-                  {get(company, "data.company_address", "-") ? (
-                      <div
-                          className={
-                            "mb-[10px] text-[#4B5055] laptop:text-base tablet:text-sm text-xs"
-                          }
-                      >
-                        <strong className={"text-[#000]"}>{t("Manzil")}:</strong>{" "}
-                        {get(company, "company_phone_main", "-")}
-                      </div>
-                  ) : (
-                      <div
-                          className={
-                            "mb-[10px] text-[#4B5055] laptop:text-base tablet:text-sm text-xs"
-                          }
-                      >
-                        <p>
-                          {" "}
-                          <strong className={"text-[#000]"}>
-                            {t("Manzil")}:{" "}
-                          </strong>{" "}
-                          -
-                        </p>
-                      </div>
-                  )}
-
-                  {/*<div*/}
-                  {/*  className={*/}
-                  {/*    "mb-[10px] text-[#4B5055] laptop:text-base text-sm"*/}
-                  {/*  }*/}
-                  {/*>*/}
-                  {/*  <strong className={"text-[#000] "}>{t("Telefon")}:</strong>{" "}*/}
-                  {/*  {get(company, "data.company_phone_main", "-")}*/}
-                  {/*</div>*/}
-                  {/*<div className={"text-[#4B5055] laptop:text-base text-sm"}>*/}
-                  {/*  <strong className={"text-[#000] "}>{t("Manzil")}:</strong>{" "}*/}
-                  {/*  {get(company, "data.company_address", "-")}*/}
-                  {/*</div>*/}
-                </div>
-              </div>
-
-              <div className={"laptop:col-span-3 col-span-12"}>
-                {isNil(get(company, "data.company_latitude")) ? (
-                    <div
-                        className={
-                          "flex laptop:items-start laptop:justify-start gap-x-[10px] items-center justify-center  shadow-md p-[10px]"
-                        }
-                    >
-                      <Image
-                          src={"/icons/error.svg"}
-                          alt={"error"}
-                          width={30}
-                          height={30}
-                      />
-                      <div>
-                        <h4 className={"text-base text-black"}>
-                          Hozircha koordinata topilmadi
-                        </h4>
-                        <p className={"text-xs"}>
-                          Tez fursatda Geojoylashuv bo'yicha ma'lumot kiritiladi
-                        </p>
-                      </div>
-                    </div>
-                ) : (
-                    <div className={"shadow-lg"}>
-                      <YMaps>
-                        <Map
-                            defaultState={{
-                              center: [
-                                get(company, "data.company_latitude"),
-                                get(company, "data.company_longitude"),
-                              ],
-                              zoom: 9,
-                            }}
-                            height={160}
-                            className={"tablet:h-[160px] h-[100px]"}
+                <div
+                    className="laptop:col-span-7 col-span-12 !ml-0 flex flex-col  laptop:items-start laptop:justify-start items-center justify-center">
+                    <div className="flex mb-2.5">
+                        <div
+                            className={"inline-flex mr-[10px] cursor-pointer text-center"}
                         >
-                          <Placemark
-                              defaultGeometry={[
-                                get(company, "data.company_latitude"),
-                                get(company, "data.company_longitude"),
-                              ]}
-                          />
-                          <FullscreenControl />
-                        </Map>
+                            <Image
+                                className={
+                                    "laptop:mr-1.5 tablet:mr-1 mr-0.5 tablet:w-[20px] tablet:h-[20px] laptop:w-[24px] laptop:h-[24px] w-[18px] h-[18px]"
+                                }
+                                width={24}
+                                height={24}
+                                src={"/icons/stick.svg"}
+                                alt={"code"}
+                            />
+                        </div>
+                        <h2
+                            className={
+                                "text-[#212529] laptop:text-base tablet:text-sm text-xs font-medium "
+                            }
+                        >
+                            {get(company, "data.company_name")}
+
+                        </h2>
+
+                    </div>
+                    <div style={{display: 'flex', flexDirection: 'row'}}>
+                        {[...Array(Math.round(get(ratingCompany, "data.average_rating", 1)))].map((star, index) => {
+                            return (
+                                <label key={index} style={{display: 'inline-block'}}>
+                                    <input
+                                        type="radio"
+                                        name="rating"
+                                        value={get(ratingCompany, "data.average_rating")}
+                                        style={{display: 'none'}}
+                                    />
+                                    <svg
+                                        className="star"
+                                        width="25"
+                                        height="25"
+                                        viewBox="0 0 24 24"
+                                        fill={"#ffd700"}
+                                        fill={"#ffd700"}
+
+                                    >
+                                        <polygon points="12,2 15,8 22,9 17,14 18,21 12,17 6,21 7,14 2,9 9,8"/>
+                                    </svg>
+                                </label>
+                            );
+                        })}
+                    </div>
+
+                    <div className="flex flex-col laptop:items-start items-center mt-2.5">
+
+                        <div
+                            className={
+                                "mb-[10px] laptop:text-base tablet:text-sm text-xs  text-[#4B5055]"
+                            }
+                        >
+                            <strong className={"text-[#000]"}>{t("Rahbar")}:</strong>{" "}
+                            {get(company, "data.company_ceo")}
+                        </div>
+
+                        {get(company, "data.company_email", "-") ? (
+                            <div
+                                className={
+                                    "mb-[10px] text-[#4B5055] laptop:text-base text-sm"
+                                }
+                            >
+                                <strong className={"text-[#000]"}>
+                                    {t("Elektron-pochta")}:
+                                </strong>{" "}
+                                {get(company, "data.company_email", "-")}
+                            </div>
+                        ) : (
+                            ""
+                        )}
+                        {get(company, "data.company_phone_main", "-") ? (
+                            <div
+                                className={
+                                    "mb-[10px] text-[#4B5055] laptop:text-base tablet:text-sm text-xs"
+                                }
+                            >
+                                <strong className={"text-[#000]"}>{t("Telefon")}:</strong>{" "}
+                                {get(company, "data.company_phone_main", "-")}
+                            </div>
+                        ) : (
+                            <div
+                                className={
+                                    "mb-[10px] text-[#4B5055] laptop:text-base tablet:text-sm text-xs"
+                                }
+                            >
+                                <p>
+                                    {" "}
+                                    <strong className={"text-[#000]"}>
+                                        {t("Telefon")}:{" "}
+                                    </strong>{" "}
+                                    -
+                                </p>
+                            </div>
+                        )}
+                        {get(company, "data.company_address", "-") ? (
+                            <div
+                                className={
+                                    "mb-[10px] text-[#4B5055] laptop:text-base tablet:text-sm text-xs"
+                                }
+                            >
+                                <strong className={"text-[#000]"}>{t("Manzil")}:</strong>{" "}
+                                {get(company, "data.company_address", "-")}
+                            </div>
+                        ) : (
+                            <div
+                                className={
+                                    "mb-[10px] text-[#4B5055] laptop:text-base tablet:text-sm text-xs"
+                                }
+                            >
+                                <p>
+                                    {" "}
+                                    <strong className={"text-[#000]"}>
+                                        {t("Manzil")}:{" "}
+                                    </strong>{" "}
+                                    -
+                                </p>
+                            </div>
+                        )}
+
+                        {/*<div*/}
+                        {/*  className={*/}
+                        {/*    "mb-[10px] text-[#4B5055] laptop:text-base text-sm"*/}
+                        {/*  }*/}
+                        {/*>*/}
+                        {/*  <strong className={"text-[#000] "}>{t("Telefon")}:</strong>{" "}*/}
+                        {/*  {get(company, "data.company_phone_main", "-")}*/}
+                        {/*</div>*/}
+                        {/*<div className={"text-[#4B5055] laptop:text-base text-sm"}>*/}
+                        {/*  <strong className={"text-[#000] "}>{t("Manzil")}:</strong>{" "}*/}
+                        {/*  {get(company, "data.company_address", "-")}*/}
+                        {/*</div>*/}
+                    </div>
+                </div>
+
+                <div className={"laptop:col-span-3 col-span-12"}>
+                    {isNil(get(company, "data.company_latitude")) ? (
+                        <div
+                            className={
+                                "flex laptop:items-start laptop:justify-start gap-x-[10px] items-center justify-center  shadow-md p-[10px]"
+                            }
+                        >
+                            <Image
+                                src={"/icons/error.svg"}
+                                alt={"error"}
+                                width={30}
+                                height={30}
+                            />
+                            <div>
+                                <h4 className={"text-base text-black"}>
+                                    Hozircha koordinata topilmadi
+                                </h4>
+                                <p className={"text-xs"}>
+                                    Tez fursatda Geojoylashuv bo'yicha ma'lumot kiritiladi
+                                </p>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className={"shadow-lg"}>
+                            <YMaps>
+                                <Map
+                                    defaultState={{
+                                        center: [
+                                            get(company, "data.company_latitude"),
+                                            get(company, "data.company_longitude"),
+                                        ],
+                                        zoom: 9,
+                                    }}
+                                    height={160}
+                                    className={"tablet:h-[160px] h-[100px]"}
+                                >
+                                    <Placemark
+                                        defaultGeometry={[
+                                            get(company, "data.company_latitude"),
+                                            get(company, "data.company_longitude"),
+                                        ]}
+                                    />
+                                    <FullscreenControl/>
+                                </Map>
                       </YMaps>
                     </div>
                 )}

@@ -95,3 +95,12 @@ body {
     border-radius: 15px;
     font-size: 25px;
 }
+
+input[type=radio] {
+    display: none;
+}
+
+.star {
+    cursor: pointer;
+    display: flex;
+}

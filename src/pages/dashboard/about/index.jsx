@@ -7,9 +7,12 @@ import {KEYS} from "@/constants/key";
 import ContentLoader from "@/components/loader/content-loader";
 import {get, isNull} from "lodash";
 import Image from "next/image";
+import Link from "next/link";
+import {useRouter} from "next/router";
 
 const Index = () => {
-
+  const router = useRouter();
+  const { id } = router.query
   const { data, isLoading } = useGetQuery({
     key: KEYS.aboutCompany,
     url: URLS.aboutCompany
@@ -62,15 +65,19 @@ const Index = () => {
                   </p>
 
                   {/*  Company phone  */}
-                  <p className={"text-xs text-black my-[6px]"}>
-                    <strong>Telefon: </strong>{get(item, "company_phone_main")}
-                  </p>
+                  <div className={"text-xs text-black my-[6px]"}>
+                    <p>
+                      <strong>Telefon: </strong> {isNull(get(item, "company_phone_main")) ? "Ma'lumot kiritilmagan" : get(item, "company_phone_main")}
+                    </p>
+                  </div>
 
                   {/*  Company address  */}
-                  <p className={"text-xs text-black"}>
-                    <strong>Manzil: </strong>{get(item, "company_address")}
-                  </p>
-                  <button
+                  <div className={"text-xs text-black my-[6px]"}>
+                    <p>
+                      <strong>Manzil: </strong> {isNull(get(item, "company_address")) ? "Ma'lumot kiritilmagan" : get(item, "company_address")}
+                    </p>
+                  </div>
+                  <Link href={`/dashboard/about/${id}`}
                       className={
                         "flex items-center gap-x-[10px] bg-[#1890FF] py-[6px] px-[31px] rounded-[5px] float-right hover:bg-[#0084FF] transition-all duration-300"
                       }
@@ -113,111 +120,112 @@ const Index = () => {
                     </svg>
 
                     <p className={"text-white"}>Tahrirlash</p>
-                  </button>
+                  </Link>
                 </div>
               </div>
           )
         }
         <p className={"text-sm text-[#c5c5c5]"}>*Quyidagi ma'lumotlar korxonaning STIR orqali yuklab olingan</p>
-        <section
-            className={
-              " p-[10px] bg-white grid grid-cols-12 "
-            }
-        >
-          <div
-              className={
-                "col-span-5 text-xs text-black flex flex-col gap-y-[20px]"
-              }
-          >
-            <p className={""}>
-              <strong>Tashkil etilgan kuni:</strong>
-            </p>
+        {
+          get(data, "data", []).map(item =>
+              <section
+                  className={
+                    " p-[10px] bg-white grid grid-cols-12 "
+                  }
+              >
+                <div
+                    className={
+                      "col-span-5 text-xs text-black flex flex-col gap-y-[20px]"
+                    }
+                >
+                  <p className={""}>
+                    <strong>Tashkil etilgan kuni:</strong>
+                  </p>
 
-            <p className={""}>
-              <strong>Ro‘yhatdan o‘tgan organ:</strong>
-            </p>
+                  <p className={""}>
+                    <strong>Ro‘yhatdan o‘tgan organ:</strong>
+                  </p>
 
-            <p className={""}>
-              <strong>THSHT ma’lumotlari:</strong>
-            </p>
+                  <p className={""}>
+                    <strong>THSHT ma’lumotlari:</strong>
+                  </p>
 
-            <p className={""}>
-              <strong>DBIBT ma’lumotlari:</strong>
-            </p>
+                  <p className={""}>
+                    <strong>DBIBT ma’lumotlari:</strong>
+                  </p>
 
-            <p className={""}>
-              <strong>IFUT ma’lumotlari:</strong>
-            </p>
+                  <p className={""}>
+                    <strong>IFUT ma’lumotlari:</strong>
+                  </p>
 
-            <p className={""}>
-              <strong>Joylashgan viloyat:</strong>
-            </p>
+                  <p className={""}>
+                    <strong>Joylashgan viloyat:</strong>
+                  </p>
 
-            <p className={""}>
-              <strong>Joylashgan tuman/shahar:</strong>
-            </p>
+                  <p className={""}>
+                    <strong>Joylashgan tuman/shahar:</strong>
+                  </p>
 
-            <p className={""}>
-              <strong>To‘liq manzili:</strong>
-            </p>
+                  <p className={""}>
+                    <strong>To‘liq manzili:</strong>
+                  </p>
 
-            <p className={""}>
-              <strong>Elektron pochta:</strong>
-            </p>
+                  <p className={""}>
+                    <strong>Elektron pochta:</strong>
+                  </p>
 
-            <p className={""}>
-              <strong>Qo’shimcha telefon raqami:</strong>
-            </p>
+                  <p className={""}>
+                    <strong>Qo’shimcha telefon raqami:</strong>
+                  </p>
 
-            <p className={""}>
-              <strong>Ustav fondi:</strong>
-            </p>
+                  <p className={""}>
+                    <strong>Ustav fondi:</strong>
+                  </p>
 
-            <p className={""}>
-              <strong>Holati:</strong>
-            </p>
+                  <p className={""}>
+                    <strong>Holati:</strong>
+                  </p>
 
-            <p className={""}>
-              <strong>Rahbar:</strong>
-            </p>
+                  <p className={""}>
+                    <strong>Rahbar:</strong>
+                  </p>
 
-            <p className={""}>
-              <strong>Kompaniya sahifasining ko’rishlar soni:</strong>
-            </p>
+                  <p className={""}>
+                    <strong>Kompaniya sahifasining ko’rishlar soni:</strong>
+                  </p>
 
-            <p className={""}>
-              <strong>Kompaniya sahifasining saqlashlar soni:</strong>
-            </p>
-          </div>
+                </div>
 
-          <div
-              className={
-                "col-span-5 text-xs text-black flex flex-col gap-y-[20px]"
-              }
-          >
-            <p>24.03.1997</p>
-            <p>Viloyat adliya boshqarmasi</p>
-            <p>153 - Aksiyadorlik jamiyati</p>
-            <p>07154 - “O‘zqurilishmateriallari” aksiyadorlik kompaniyasi</p>
-            <p>23510 - TSement ishlab chiqarish</p>
-            <p>Berilmagan</p>
-            <p>Berilmagan</p>
-            <p>Navoiy viloyati, Navoiy sh., Navoiy ko‘chasi, 3-uy</p>
-            <p>info@qizilqumsement.uz</p>
-            <p>79-2236490</p>
-            <p>702 601 533 000,00 UZS</p>
-            <p>Hozirda mavjud</p>
-            <p>Melnikov Sergey Nikolayevich</p>
-            <p>0</p>
-            <p>10</p>
-          </div>
-        </section>
+                <div
+                    className={
+                      "col-span-5 text-xs text-black flex flex-col gap-y-[20px]"
+                    }
+                >
+                  <p>{isNull(get(item, "company_reg_year")) ? "Ma'lumot kiritilmagan" : get(item, "company_reg_year")}</p>
+                  <p>Viloyat adliya boshqarmasi</p>
+                  <p>153 - Aksiyadorlik jamiyati</p>
+                  <p>07154 - “O‘zqurilishmateriallari” aksiyadorlik kompaniyasi</p>
+                  <p>23510 - TSement ishlab chiqarish</p>
+                  <p>{isNull(get(item, "company_region")) ? "Ma'lumot kiritilmagan" : get(item, "company_region")}</p>
+                  <p>{isNull(get(item, "company_district")) ? "Ma'lumot kiritilmagan" : get(item, "company_district")}</p>
+                  <p>{isNull(get(item, "company_address")) ? "Ma'lumot kiritilmagan" : get(item, "company_address")}</p>
+                  <p>{isNull(get(item, "company_email")) ? "Ma'lumot kiritilmagan" : get(item, "company_email")}</p>
+                  <p>{isNull(get(item, "company_reg_year")) ? "Ma'lumot kiritilmagan" : get(item, "company_reg_year")}</p>
+                  <p>702 601 533 000,00 UZS</p>
+                  <p>Hozirda mavjud</p>
+                  <p>Melnikov Sergey Nikolayevich</p>
+                  <p>{isNull(get(item, "company_views_count")) ? "0" : get(item, "company_views_count")}</p>
+
+                </div>
+              </section>
+          )
+        }
 
         <div className={"mb-[268px]"}>
-          <button
-              className={
-                "flex items-center gap-x-[10px] bg-[#1890FF] py-[6px] px-[31px] rounded-[5px] float-left mt-[30px] hover:bg-[#0084FF] transition-all duration-300 "
-              }
+          <Link href={`/dashboard/about/${id}`}
+                className={
+                  "flex items-center gap-x-[10px] bg-[#1890FF] py-[6px] px-[31px] rounded-[5px] float-left mt-[30px] hover:bg-[#0084FF] transition-all duration-300 "
+                }
           >
             <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -251,13 +259,13 @@ const Index = () => {
               </g>
               <defs>
                 <clipPath id="clip0_1_212">
-                  <rect width="20" height="20" fill="white" />
+                  <rect width="20" height="20" fill="white"/>
                 </clipPath>
               </defs>
             </svg>
 
             <p className={"text-white"}>Tahrirlash</p>
-          </button>
+          </Link>
         </div>
       </div>
     </Dashboard>

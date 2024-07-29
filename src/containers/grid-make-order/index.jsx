@@ -29,7 +29,6 @@ const GridMakeOrder = () => {
   });
 
   const handleIncrement = (product) => {
-    console.log("product", product, JSON.stringify(product));
     dispatch({ type: "INCREMENT", payload: JSON.stringify(product) });
   };
 

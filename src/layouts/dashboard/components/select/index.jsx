@@ -3,8 +3,6 @@ import React from 'react';
 const PageSizeSelector = () => {
     const handlePageSizeChange = (event) => {
         const selectedPageSize = event.target.value;
-
-        console.log('Selected Page Size:', selectedPageSize);
     };
 
     return (

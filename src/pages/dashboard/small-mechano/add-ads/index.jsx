@@ -10,11 +10,7 @@ import {debounce, head, get, isEmpty, find} from "lodash";
 import {useForm} from "react-hook-form";
 import {toast} from "react-hot-toast";
 import useGetQuery from "@/hooks/api/useGetQuery";
-import {OverlayLoader} from "@/components/loader";
 import {useRouter} from 'next/navigation';
-import {motion} from "framer-motion";
-import {warn} from "next/dist/build/output/log";
-import {getDefaultValue, getOptionList} from "@/utils";
 import Select from "react-select";
 
 const Ads = () => {
@@ -104,7 +100,7 @@ const Ads = () => {
 
     return (
         <Dashboard>
-            <Subheader title={'Kichik mexanizatsiya e’lonini qo’shish'}/>
+            <Subheader title={'Kichik mexanizatsiya bo\'limiga e’lon qo’shish'}/>
             <div className="p-7">
 
                 <form className={'grid grid-cols-12 gap-x-[30px]'} onSubmit={handleSubmit(onSubmit)}>
@@ -113,31 +109,6 @@ const Ads = () => {
                     </div>
 
                     <div className={'col-span-12  gap-x-[30px]'}>
-                        {/*<input list={'search-list'} defaultValue={search} placeholder={'nomni rus tilida kiriting'}*/}
-                        {/*       onChange={debounce(function (e) {*/}
-                        {/*           if (e.target.value.length > 3) {*/}
-                        {/*               setSearch(e.target.value)*/}
-                        {/*               setWarning(false)*/}
-
-                        {/*           } else {*/}
-                        {/*               setWarning(true)*/}
-                        {/*           }*/}
-                        {/*       }, 500)}*/}
-                        {/*       className={'placeholder:italic py-[15px] px-[20px] w-full shadow-xl rounded-[5px] relative'}*/}
-                        {/*/>*/}
-                        {/*{warning === true && <motion.p initial={{opacity: 0}}*/}
-                        {/*                               animate={{opacity: 1, marginTop: 100}}*/}
-                        {/*                               className={'text-red-800 mt-[10px]'}>Iltimos kamida 4 ta belgi*/}
-                        {/*    kiriting.</motion.p>}*/}
-
-                        {/*<datalist id={'search-list'} className={'w-[1000px]'}*/}
-                        {/*          onChange={(e) => setPageSize(e?.target?.value)}>*/}
-
-                        {/*    {*/}
-                        {/*        get(materials, 'data.results', []).map(item => <option*/}
-                        {/*            value={get(item, 'material_name')}></option>)*/}
-                        {/*    }*/}
-                        {/*</datalist>*/}
 
                         <Select
                             isClearable
@@ -166,7 +137,7 @@ const Ads = () => {
 
                     {/*  material kategoriyasi  */}
                     <div className={'col-span-12  gap-x-[30px] mt-[30px]'}>
-                        <h4 className={'text-[#28366D] text-base'}>Kichik mexanizatsiyalar kategoriyasi</h4>
+                        <h4 className={'text-[#28366D] text-base'}>Mahsulot kategoriyasi</h4>
                         <p className={'text-[12px] text-[#516164]'}>*qidiruv natijasiga ko’ra avtomatik to’ldiriladi</p>
                         <input
                             defaultValue={get(smallMechano, 'smallmechano_category_name')}
@@ -180,7 +151,7 @@ const Ads = () => {
 
                     <div className={'col-span-12   gap-x-[30px] mt-[20px]'}>
 
-                        <h4 className={'text-[#28366D] text-base '}>Kichik mexanizatsiyalar guruhi</h4>
+                        <h4 className={'text-[#28366D] text-base '}>Mahsulot guruhi</h4>
                         <p className={'text-[12px] text-[#516164]'}>*qidiruv natijasiga ko’ra avtomatik to’ldiriladi</p>
 
                         <input placeholder={'*qidiruv natijasiga ko’ra avtomatik to’ldiriladi'}
@@ -193,7 +164,7 @@ const Ads = () => {
                     {/*  material nomi  */}
 
                     <div className={'col-span-12  gap-x-[30px] mt-[20px]'}>
-                        <h4 className={'text-[#28366D] text-base'}>Kichik mexanizatsiyalar nomi</h4>
+                        <h4 className={'text-[#28366D] text-base'}>Mahsulot nomi</h4>
                         <p className={'text-[12px] text-[#516164]'}>*qidiruv natijasiga ko’ra avtomatik to’ldiriladi</p>
                         <input
 
@@ -214,7 +185,7 @@ const Ads = () => {
 
                     {/* Material tavsifi */}
                     <div className={'col-span-12 gap-x-[30px]'}>
-                        <h4 className={'text-[#28366D] text-base my-[10px]'}>Kichik mexanizatsiyalar tavsifi</h4>
+                        <h4 className={'text-[#28366D] text-base my-[10px]'}>Mahsulot tavsifi</h4>
                         <textarea {...register('smallmechano_description')} rows={5}
                                   className={'py-[15px] px-[20px] w-full shadow-xl rounded-[5px] my-[10px]'}></textarea>
                     </div>
@@ -222,7 +193,7 @@ const Ads = () => {
 
                     {/* Material narxi */}
                     <div className={'col-span-6 '}>
-                        <h4 className={'text-[#28366D] text-base '}>Kichik mexanizatsiyalar narxi</h4>
+                        <h4 className={'text-[#28366D] text-base '}>Mahsulot narxi</h4>
                         <div className={'flex items-center rounded-[5px]'}>
                             <input placeholder={''} type={'number'}
                                    {...register('smallmechano_rent_price', {required: true})}
@@ -241,7 +212,7 @@ const Ads = () => {
 
                     {/* Material o'lchov birligi */}
                     <div className={'col-span-6'}>
-                        <h4 className={'text-[#28366D] text-base '}>Kichik mexanizatsiyalar o’lchov birligi</h4>
+                        <h4 className={'text-[#28366D] text-base '}>Mahsulot o’lchov birligi</h4>
                         <input placeholder={'*qidiruv natijasiga ko’ra avtomatik to’ldiriladi'}
                                className={'py-[15px] px-[20px] w-full shadow-xl rounded-[5px] my-[10px]'}
                                {...register('smallmechano_measure')}
@@ -253,7 +224,7 @@ const Ads = () => {
 
                     {/*Material miqdori*/}
                     <div className={'col-span-6'}>
-                        <h4 className={'text-[#28366D] text-base '}>Kichik mexanizatsiyalar miqdori</h4>
+                        <h4 className={'text-[#28366D] text-base '}>Mahsulot miqdori</h4>
                         <input placeholder={'Kichik mexanizatsiya miqdori'} type={'number'}
                                {...register('smallmechano_amount', {required: true})}
                                className={'py-[15px] px-[20px] w-full shadow-xl rounded-[5px] my-[10px]'}
@@ -264,7 +235,7 @@ const Ads = () => {
 
                     {/*Material miqdor o’lchov birligi*/}
                     <div className={'col-span-6'}>
-                        <h4 className={'text-[#28366D] text-base '}>Kichik mexanizatsiyalar miqdor o’lchov birligi</h4>
+                        <h4 className={'text-[#28366D] text-base '}>Mahsulot miqdor o’lchov birligi</h4>
                         <input placeholder={'*qidiruv natijasiga ko’ra avtomatik to’ldiriladi'}
                                className={'py-[15px] px-[20px] w-full shadow-xl rounded-[5px] my-[10px]'}
                                defaultValue={get(smallMechano, 'smallmechano_measure')}
@@ -276,7 +247,7 @@ const Ads = () => {
 
                     {/*Material rasmi*/}
                     <div className={'col-span-6'}>
-                        <h4 className={'text-[#28366D] text-base '}>Kichik mexanizatsiyalar rasmi</h4>
+                        <h4 className={'text-[#28366D] text-base '}>Mahsulot rasmi</h4>
                         <label htmlFor="dropzone-file"
                                className={'shadow-2xl py-[20px] px-[30px] my-[10px] rounded-[5px] cursor-pointer  flex flex-col justify-center items-center  w-[320px] h-[224px] bg-white'}>
                             <Image src={'/icons/upload.svg'} alt={'upload'} width={48} height={48}/>

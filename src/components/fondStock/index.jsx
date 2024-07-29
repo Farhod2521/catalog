@@ -34,7 +34,7 @@ const FondStock = () => {
 
         {head(
           get(birja, "data")?.map((item) => (
-            <p className={"text-[#fff] text-sm"}>
+            <p key={get(item, "id")} className={"text-[#fff] text-sm"}>
               ({dayjs(get(item, "startdate")).format("DD.MM.YYYY")} -
               {dayjs(get(item, "enddate")).format("DD.MM.YYYY")})
             </p>
@@ -48,9 +48,9 @@ const FondStock = () => {
       >
         <motion.div>
           <Marquee autoFill={true} pauseOnClick={true} direction={"right"}>
-            {get(birja, "data", []).map((item) => (
+            {get(birja, "data", []).map((item, index) => (
               <div
-                key={get(item, "id")}
+                key={index}
                 className={
                   "px-[5px] py-[8px] border border-[#c5c5c5] w-[180px] "
                 }

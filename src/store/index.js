@@ -19,11 +19,17 @@ let settingsStore = (set) => ({
     setMode: () => set(state => ({...state, darkMode: !state.darkMode}))
 })
 
+let basketStore = (set)=>({
+    basket:[],
+    setBasket: (basket) => set(state => ({...state, basket})),
+})
 
 store = devtools(store);
 settingsStore = devtools(settingsStore)
 settingsStore = persist(settingsStore, {name: 'settings'});
+basketStore = persist(basketStore, {name: 'basket'});
 
 export const useStore = create(store)
 export const useSettingsStore = create(settingsStore)
+export const useBasketStore = create(basketStore)
 

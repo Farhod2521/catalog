@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useRef} from "react";
 import Main from "@/layouts/main";
 import Menu from "@/components/menu";
 import Section from "@/components/section";
@@ -9,7 +9,7 @@ import useGetQuery from "@/hooks/api/useGetQuery";
 import { KEYS } from "@/constants/key";
 import { URLS } from "@/constants/url";
 import Image from "next/image";
-import {get, values} from "lodash";
+import {get, parseInt, values} from "lodash";
 import Select from "@/components/select";
 import GridView from "@/containers/grid-view";
 import { NumericFormat } from "react-number-format";
@@ -21,24 +21,75 @@ import Link from "next/link";
 import {useCounter} from "@/context/counter";
 import {sum} from "lodash/math";
 import {toast} from "react-hot-toast";
+import {useSession} from "next-auth/react";
+import {useSettingsStore} from "@/store";
+import Title from "@/components/title";
+import {config} from "@/config";
 
 const ViewPage = () => {
   const router = useRouter();
   const { code } = router.query;
+  const {data: session} = useSession();
+  const inputRef = useRef(null);
+  const [comments, setComments] = useState([])
+  const token = useSettingsStore(state => get(state, 'token', null))
   const { t } = useTranslation();
   const [regionId, setRegionId] = useState(null);
   const [districtId, setDistrictId] = useState(null);
-
+  const [pdf, setPdf] = useState(null);
+  const [inn, setInn] = useState(false);
   const { state, dispatch } = useCounter();
 
   const handleIncrement = (product) => {
-    console.log("product", product, JSON.stringify(product));
     dispatch({ type: "INCREMENT", payload: JSON.stringify(product) });
     toast.success('Tanlagan mahsulotingiz savatchaga qo\'shildi!', {
       duration: 3000,
       position: "top-left"
     });
+
   };
+
+  const handleSendCertificate = async (inn, certificate_number) => {
+    try {
+      const response = await fetch(`${config.API_URL}${URLS.certificate}`, {
+        method: "POST",
+        body: JSON.stringify({
+          inn: inn,
+          certificate_number: certificate_number,
+        }),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const jsonObject = JSON.parse(data)
+
+      const getPDF = jsonObject.pdf;
+      const getInn = jsonObject.inn;
+
+      setPdf(getPDF);
+      setInn(getInn);
+
+      console.log(getPDF, getInn)
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
+  const { data: customer } = useGetQuery({
+    key: KEYS.getCustomer,
+    url: URLS.getCustomer,
+    headers: {token: token ??`${get(session, 'user.token')}`},
+    enabled: !!(get(session, 'user.token') || token)
+  })
+
+
+
 
   const {data: smallMechanoAds, isLoading: isLoadingMaterialAds} = useGetQuery({
     key: KEYS.smallMechanosAds,
@@ -131,46 +182,45 @@ const ViewPage = () => {
       title: t("Sertifikat"),
       key: "sertificate_blank_num",
       render: ({ row }) => (
-        <div className={"group relative inline-block cursor-pointer"}>
-          <Image
-            className={"mx-auto"}
-            width={24}
-            height={24}
-            src={"/images/certificate.png"}
-            alt={"certificate"}
-          />
-          <ul className="text-left text-white hidden group-hover:block absolute left-full bottom-full p-2.5 bg-[#3D7AB6] w-[200px] rounded shadow-[5px_5px_15px_rgba(0, 0, 0, 0.1)]">
-            {get(row, "sertificate_blank_num") &&
-            get(row, "sertificate_reestr_num") &&
-            get(row, "sertificate_reestr_num")?.length > 1 &&
-            get(row, "sertificate_blank_num")?.length > 1 ? (
-              <>
-                <li>
-                  {t("Blank raqami")}: {get(row, "sertificate_blank_num")}
-                </li>
-                <li>
-                  {t("Reestr raqami")}: {get(row, "sertificate_reestr_num")}
-                </li>
-                <li className={"underline"}>
-                  <a
-                    target={"_blank"}
-                    href={`http://sert2.standart.uz/site/register?Search[number_of_blank]=${get(
-                      row,
-                      "sertificate_blank_num",
-                    )}&Search[gov_register]=${get(
-                      row,
-                      "sertificate_reestr_num",
-                    )}`}
-                  >
-                    {t("Tekshirish")}
-                  </a>
-                </li>
-              </>
-            ) : (
-              <li>{t("Ma’lumot mavjud emas")}</li>
-            )}
-          </ul>
-        </div>
+          <div className={"group relative inline-block cursor-pointer"}>
+            <abbr title="bosing">
+              <Image
+                  className={
+                    "mx-auto laptop:w-[24px] laptop:h-[24px] tablet:w-[21px] tablet:h-[21px] w-[18px] h-[18px] "
+                  }
+                  width={24}
+                  height={24}
+                  src={"/images/certificate.png"}
+                  alt={"certificate"}
+                  onClick={() => handleSendCertificate(parseInt(get(row, "sertificate_reestr_num")), parseInt(get(row, "sertificate_blank_num")))}
+              />
+            </abbr>
+            {pdf ? <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-20">
+              <div className="bg-white p-8 rounded shadow-md w-[700px] h-auto flex  flex-col">
+                <div>
+                  <button onClick={() => setPdf(null)} className={"float-right mb-[20px]"}>
+                    <Image
+
+                        src={"/icons/closeModal.svg"}
+                        alt={"modalcloser"}
+                        width={30}
+                        height={30}
+                        className={
+                          "float-right  cursor-pointer bg-white  rounded-[2px]"
+                        }
+                    />
+                  </button>
+                </div>
+
+
+                <Link className={" bg-blue-500 w-full text-white py-2 px-4 rounded-[6px] "}
+                      href={`${pdf}`}>Ko'rish</Link>
+
+
+              </div>
+            </div> : ""}
+
+          </div>
       ),
       classnames: "text-center",
     },
@@ -178,24 +228,24 @@ const ViewPage = () => {
       title: t("Narxi(so`m)"),
       key: "smallmechano_rent_price",
       render: ({ value, row }) =>
-        value *
-          get(
-            currency,
-            `data[${get(row, "smallmechano_rent_price_currency")}]`,
-            1,
-          ) >
+          (value *
+              get(
+                  currency,
+                  `data[${get(row, "smallmechano_rent_price_currency")}]`,
+                  1,
+              )).toFixed(2) >
         0 ? (
           <NumericFormat
             displayType={"text"}
             className={"text-center bg-transparent"}
             thousandSeparator={" "}
             value={
-              value *
+              (value *
               get(
                 currency,
                 `data[${get(row, "smallmechano_rent_price_currency")}]`,
                 1,
-              )
+              )).toFixed(2)
             }
             suffix={` (${get(row, "smallmechano_measure")})`}
           />
@@ -223,7 +273,7 @@ const ViewPage = () => {
       sorter: true,
     },
     {
-      title: t("Action"),
+      title: t("Sotib olish"),
       key: "action",
       render: ({row}) => (
           <div className={"flex items-center justify-between gap-x-4 relative"}>
@@ -452,6 +502,8 @@ const ViewPage = () => {
               </div>
             </div>
           </Section>
+
+
         </Main>
       </>
   );

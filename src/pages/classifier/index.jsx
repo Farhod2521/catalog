@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import Modal from 'react-modal';
 import Main from "../../layouts/main";
 import Menu from "../../components/menu";
 import Section from "../../components/section";
@@ -14,7 +15,7 @@ import clsx from "clsx";
 import { NumericFormat } from "react-number-format";
 import GridView from "../../containers/grid-view";
 import Link from "next/link";
-
+Modal.setAppElement('#__next');
 const columns = [
   {
     title: "№",
@@ -117,6 +118,13 @@ const Classifier = () => {
     },
     enabled: !!chapterId,
   });
+
+  // Modal state
+  const [modalIsOpen, setModalIsOpen] = useState(true);
+
+  const closeModal = () => {
+    setModalIsOpen(false);
+  };
 
   if (isLoadingVolumes) {
     return (
@@ -295,8 +303,8 @@ const Classifier = () => {
                                             }}
                                           >
                                             <Image
-                                              width={18}
-                                              height={18}
+                                              width={12}
+                                              height={12}
                                               src={
                                                 get(chapter, "id") == chapterId
                                                   ? "/icons/arrow-down-category-active.svg"
@@ -318,37 +326,66 @@ const Classifier = () => {
                                               }
                                             />
                                           ) : (
-                                            <ul className={"pl-9 py-1.5"}>
+                                            <ul className={"pl-3 py-1.5"}>
                                               {get(
                                                 groups,
                                                 "data.results",
                                                 [],
                                               ).map((group, l) => (
                                                 <li
-                                                  key={get(group, "id")}
-                                                  className={clsx(
-                                                    " transition cursor-pointer mb-1.5  hover:text-[#1B41C6] text-sm text-[#28366D] font-normal",
-                                                    {
-                                                      "!text-[#017EFA] !font-medium":
-                                                        get(group, "id") ===
-                                                        groupId,
-                                                      "!mb-0":
-                                                        get(
-                                                          groups,
-                                                          "data.results",
-                                                          [],
-                                                        )?.length ===
-                                                        l + 1,
-                                                    },
-                                                  )}
                                                   onClick={(e) => {
                                                     e.stopPropagation();
                                                     setGroupId(
                                                       get(group, "id"),
                                                     );
                                                   }}
+                                                  className={clsx(
+                                                    " transition cursor-pointer mb-2  hover:text-[#1B41C6] text-sm text-[#28366D] font-normal",
+                                                    {
+                                                      "!text-[#017EFA] !font-medium":
+                                                        get(group, "id") ==
+                                                        groupId,
+                                                      "!mb-0":
+                                                        get(
+                                                          groups,
+                                                          "data.results",
+                                                        [])?.length ==
+                                                        l + 1,
+                                                    },
+                                                  )}
+                                                  key={get(group, "id")}
                                                 >
-                                                  {get(group, "group_name")}
+                                                  <div
+                                                    className={"flex items-start"}
+                                                  >
+                                                    <motion.div
+                                                      className={
+                                                        "mr-2 flex-none "
+                                                      }
+                                                      animate={{
+                                                        rotate:
+                                                          get(group, "id") ==
+                                                          groupId
+                                                            ? 90
+                                                            : 0,
+                                                      }}
+                                                    >
+                                                      <Image
+                                                        width={12}
+                                                        height={12}
+                                                        src={
+                                                          get(group, "id") ==
+                                                          groupId
+                                                            ? "/icons/arrow-down-category-active.svg"
+                                                            : "/icons/arrow-down-category.svg"
+                                                        }
+                                                        alt={"arrow"}
+                                                      />
+                                                    </motion.div>
+                                                    <span>
+                                                      {get(group, "group_name")}
+                                                    </span>
+                                                  </div>
                                                 </li>
                                               ))}
                                             </ul>
@@ -366,60 +403,123 @@ const Classifier = () => {
               ))}
             </ul>
           </div>
-          <div className="col-span-12 tablet:col-span-7 laptop:col-span-8 desktop:col-span-9 tablet:mt-0 mt-[30px]">
-            <div className="grid grid-cols-12 tablet:gap-x-8 gap-x-4 ">
-              <div className="col-span-12">
-                {volumeId ? (
-                  <GridView
-                    getCount={setCount}
-                    url={URLS.classifierResources}
-                    key={[KEYS.classifierResources, volumeId]}
-                    params={
-                      search && search?.length > 3
-                        ? {
-                            key: "name",
-                            value: search,
-                          }
-                        : {
-                            key: groupId
-                              ? "group"
-                              : chapterId
-                              ? "chapter"
-                              : partId
-                              ? "part"
-                              : "volume",
-                            value: groupId
-                              ? groupId
-                              : chapterId
-                              ? chapterId
-                              : partId
-                              ? partId
-                              : volumeId,
-                          }
-                    }
-                    columns={columns}
-                  />
-                ) : (
-                  <GridView
-                    getCount={setCount}
-                    url={URLS.classifier}
-                    key={KEYS.classifier}
-                    params={
-                      search && search?.length > 3
-                        ? {
-                            key: "name",
-                            parent: search,
-                          }
-                        : { key: "resources" }
-                    }
-                    columns={columns}
-                  />
-                )}
-              </div>
-            </div>
+          <div className="tablet:col-span-7 laptop:col-span-8 desktop:col-span-9 col-span-12 mt-3 tablet:mt-0">
+            <GridView
+              endpoint={"/grid-resources"}
+              columns={columns}
+              search={search}
+              onSearchCountChange={(count) => setCount(count)}
+            />
           </div>
         </div>
       </Section>
+      <Modal
+      className={"bg-blue-500"}
+        isOpen={modalIsOpen}
+        onRequestClose={closeModal}
+        contentLabel="Example Modal"
+        style={{
+          overlay: {
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)'
+          },
+          content: {
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            right: 'auto',
+            bottom: 'auto',
+            marginRight: '-50%',
+            transform: 'translate(-50%, -50%)',
+            background: 'white',
+            padding: '20px',
+            maxWidth: '900px',
+            maxHeight: "500px",
+            width: '100%',
+            borderRadius: '8px',
+            color: "white",
+            backgroundColor: 'rgb(40, 54, 109)',
+            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+          }
+        }}
+      >
+        {/* <button onClick={closeModal} className="text-end ">X</button> */}
+        <h1 className="text-center text-wrap text-3xl">QURILISH RESURSLARI MILLIY KLASSIFIKATORI</h1>
+        
+        <div className="mt-10">
+        <div className="col-span-12 flex ">
+
+        <div className="col-span-4 m-10 ">
+              <div className="drop-shadow-2xl  items-center justify-center ">
+                <div className="relative">
+              
+                <div className="w-40 h-60 bg-white transform rotate-60 flex items-center justify-center ml-12 rounded bg-[url('/images/shnk.png')]">
+      <div className="relative w-[170px] h-[500px]">
+        <Image
+          src={"/images/tmsiti.png"}
+          alt={"stock-market"}
+          layout="fill"
+          objectFit="contain"
+        />
+      </div>
+    </div>
+                  <a href="https://tmsiti.uz/"><h3 className="text-xl mt-4 text-center" >Texnik me’yorlash va standartlashtirish ilmiy-tadqiqot instituti </h3></a>
+                </div>
+                
+            </div>
+        </div>
+        <div className="col-span-4 m-10  ">
+              <div className="drop-shadow-2xl  items-center justify-center   ">
+                <div className="relative">
+              
+                  <div className="w-40 h-60 bg-white transform  flex items-center justify-center ml-5 rounded  bg-[url('/images/shnk.png')]">
+                  <Image
+                src={"/images/shnk.png"}
+                alt={"stock-market"}
+                width={110}
+                height={110}
+            />
+                 
+                  </div>
+                  <a href="https://play.google.com/store/apps/details?id=uz.tmsiti.shnq&hl=en"><h3 className="text-xl mt-4 text-center" >Shaharsozlik normalari <p className="text-center">(mobil ilovasi)</p></h3></a>
+                </div>
+                
+            </div>
+        </div>
+
+        <div className="col-span-4 m-10 ">
+              <div className="drop-shadow-2xl  items-center justify-center ">
+                <div className="relative">
+              
+                <div className="w-40 h-60 bg-white transform  flex items-center justify-center ml-5 rounded  bg-[url('/images/shnk.png')]">
+                  <Image
+                src={"/images/lbt.png"}
+                alt={"stock-market"}
+                width={300}
+                height={120}
+            />
+                 
+                  </div>
+                  <h3 className="text-xl mt-4 text-center" >Kompleks sinov labaratoryasi. <p className="text-center"></p></h3>
+                </div>
+                
+            </div>
+        </div>
+
+
+
+
+  
+
+ </div>
+          
+          
+        </div> 
+      </Modal>
     </Main>
   );
 };

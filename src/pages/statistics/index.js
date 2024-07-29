@@ -7,12 +7,12 @@ import { dehydrate, QueryClient, useQuery } from "@tanstack/react-query";
 import { ContentLoader } from "@/components/loader";
 import Category from "@/components/category";
 import Title from "@/components/title";
-import { get, head, isEmpty } from "lodash";
+import {get, head, isEmpty, parseInt} from "lodash";
 import Product from "@/components/product";
 import ErrorPage from "@/pages/500";
 import { URLS } from "@/constants/url";
 import { useTranslation } from "react-i18next";
-import React, { useState } from "react";
+import React, {useEffect, useState} from "react";
 import { OverlayLoader } from "../../components/loader";
 import Template from "@/components/template";
 import Image from "next/image";
@@ -22,16 +22,50 @@ import TemporaryProduct from "@/components/temporary_product";
 
 import { useRouter } from "next/router";
 import Link from "next/link";
+import GridView from "@/containers/grid-view";
+import {NumericFormat} from "react-number-format";
+import Pagination from "@/components/pagination";
 
 export default function Home() {
   const router = useRouter();
   const { region_name } = router.query;
+  const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(24);
   const [isActive, setIsActive] = useState(0);
+
   const [tabs, setTabs] = useState(1);
   const { t } = useTranslation();
   const [selectedRegion, setSelectedRegion] = useState(null);
   const [regionName, setRegionName] = useState("");
+  const [dataStatistics, setDataStatistics] = useState([]);
+  // stock
+  const [searchQuery, setSearchQuery] = useState('');
+  const [dataStock, setDataStock] = useState([]);
+  const [sortOrderStock, setSortOrderStock] = useState('asc');
+  // ministry
+  const [dataMinistry, setDataMinistry] = useState([])
+  const [sortOrderMinistry, setSortOrderMinistry] = useState('asc');
+  const [searchQueryMinistry, setSearchQueryMinistry] = useState('');
+  // tax
+  const [dataTax, setDataTax] = useState([])
+  const [sortOrderTax, setSortOrderTax] = useState('asc');
+  const [searchQueryTax, setSearchQueryTax] = useState('');
+  // customs
+  const [dataCustoms, setDataCustoms] = useState([])
+  const [sortOrderCustoms, setSortOrderCustoms] = useState('asc');
+  const [searchQueryCustoms, setSearchQueryCustoms] = useState('');
+  // TSA
+  const [dataTechnicTSA, setDataTechnicTSA] = useState([])
+  const [sortOrderTechnicTSA, setSortOrderTechnicTSA] = useState('asc');
+  const [searchQueryTechnicTSA, setSearchQueryTechnicTSA] = useState('');
+
+
+  const { data: currency } = useGetQuery({
+    key: KEYS.currency,
+    url: URLS.currency,
+  });
+  const currencyUSD = currency?.data?.USD;
+
 
   const handleRegionClick = (event) => {
     const regionId = event.target.id;
@@ -39,7 +73,72 @@ export default function Home() {
     setRegionName(event.target.getAttribute("data-name"));
   };
 
+  const {data: customs, isLoadingCustoms} = useGetQuery({
+    key: KEYS.customs,
+    url: URLS.customs
+  })
+
+  useEffect(() => {
+    if(get(customs, "data.results", [])) {
+      setDataCustoms(get(customs, "data.results", []))
+    }
+  }, [get(customs, "data.results", [])]);
+
+  const sortDataCustoms = () => {
+    const sortedData = [...get(customs, "data.results", [])].sort((a, b) => {
+      if (sortOrderCustoms === 'asc') {
+        return a.value - b.value;
+      } else {
+        return b.value - a.value;
+      }
+    });
+
+    setDataCustoms(sortedData)
+    setSortOrderCustoms(sortOrderCustoms === 'asc' ? 'desc' : 'asc');
+
+  };
+
+  const handleSearchCustoms = (e) => {
+    setSearchQueryCustoms(e.target.value);
+  };
+
+  const filteredDataCustoms = dataCustoms.filter((item) => {
+    return (
+        get(item, 'codeTiftn', '').toLowerCase().includes(searchQueryCustoms.toLowerCase()) ||
+        get(item, 'netMass', '').toString().includes(searchQueryCustoms) ||
+        get(item, 'codeName', '').toString().includes(searchQueryCustoms)
+    );
+  });
+
+
+
+
+
+
+
+
+  useEffect(() => {
+    const fetchStatistics = async () => {
+      try {
+        const response = await fetch('/statistics-json/statistics.json');
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        setDataStatistics(data[0]); // Adjust based on your JSON structure
+      } catch (error) {
+        console.error('Failed to fetch the JSON data:', error);
+      }
+    };
+
+
+    fetchStatistics();
+  }, []);
+
+
+
   const closeRegion = () => {
+
     setSelectedRegion(null);
   };
 
@@ -47,27 +146,196 @@ export default function Home() {
     setTabs(index);
   };
 
-  const handleClickFormat = (type) => {
-    setIsActive(type);
+  const {data: technicsTSA, isLoadingTSA} = useGetQuery({
+    key: KEYS.technicTSA,
+    url: URLS.technicTSA,
+    params: {
+      page,
+      page_size: pageSize
+    }
+  })
+
+  useEffect(() => {
+    if(get(technicsTSA, "data.results", [])) {
+      setDataTechnicTSA(get(technicsTSA, "data.results", []))
+    }
+  }, [get(technicsTSA, "data.results", [])]);
+
+  const sortDataTechnicTSA = () => {
+    const sortedData = [...get(technicsTSA, "data.results", [])].sort((a, b) => {
+      if (sortOrderTechnicTSA === 'asc') {
+        return a.price - b.price;
+      } else {
+        return b.price - a.price;
+      }
+    });
+
+    setDataTechnicTSA(sortedData)
+    setSortOrderTechnicTSA(sortOrderTechnicTSA === 'asc' ? 'desc' : 'asc');
+
+
   };
+
+  const handleSearchTechnicTSA = (e) => {
+    setSearchQueryTechnicTSA(e.target.value);
+  };
+
+  const filteredDataTechnicTSA = dataTechnicTSA.filter((item) => {
+    return (
+        get(item, 'name', '').toLowerCase().includes(searchQueryTechnicTSA.toLowerCase()) ||
+        get(item, 'gost', '').toString().includes(searchQueryTechnicTSA) ||
+        get(item, 'company_name', '').toString().includes(searchQueryTechnicTSA) ||
+        get(item, 'price', '').toString().includes(searchQueryTechnicTSA) ||
+        get(item, 'country', '').toString().includes(searchQueryTechnicTSA)
+    );
+  });
+
+
+
+  const { data: ministry, isLoading: isLoadingMinistry } = useGetQuery({
+    key: "ministry-key",
+    url: "https://cs.egov.uz/apiPartner/Table/Get?accessToken=65f171e8d204616a6824dc91&name=039-3-002&limit=500&offset=0&lang=1"
+  })
+
+  useEffect(() => {
+    if(get(ministry, "data.result.data", [])) {
+      setDataMinistry(get(ministry, "data.result.data", []))
+    }
+  }, [get(ministry, "data.result.data", [])]);
+
+  const sortDataMinistry = () => {
+    const sortedData = [...get(ministry, "data.result.data", [])].sort((a, b) => {
+      if (sortOrderMinistry === 'asc') {
+        return a.price - b.price;
+      } else {
+        return b.price - a.price;
+      }
+    });
+
+    setDataMinistry(sortedData)
+    setSortOrderMinistry(sortOrderMinistry === 'asc' ? 'desc' : 'asc');
+
+
+  };
+
+  const handleSearchMinistry = (e) => {
+    setSearchQueryMinistry(e.target.value);
+  };
+
+  const filteredDataMinistry = dataMinistry.filter((item) => {
+    return (
+        get(item, 'categoryCode', '').toLowerCase().includes(searchQueryMinistry.toLowerCase()) ||
+        get(item, 'productCode', '').toString().includes(searchQueryMinistry) ||
+        get(item, 'productName', '').toString().includes(searchQueryMinistry) ||
+        get(item, 'fieldName', '').toString().includes(searchQueryMinistry) ||
+        get(item, 'fieldValue', '').toString().includes(searchQueryMinistry)
+    );
+  });
+
+
+
+
+
+  const {data: taxes, isLoadingTax} = useGetQuery({
+    key: KEYS.tax,
+    url: URLS.tax
+  })
+
+  useEffect(() => {
+    if(get(taxes, "data.data", [])) {
+      setDataTax(get(taxes, "data.data", []))
+    }
+  }, [get(taxes, "data.data", [])]);
+
+  const sortDataTaxDelivery = () => {
+    const sortedData = [...get(taxes, "data.data", [])].sort((a, b) => {
+      if (sortOrderTax === 'asc') {
+        return a.delivery_sum - b.delivery_sum;
+      } else {
+        return b.delivery_sum - a.delivery_sum;
+      }
+    });
+
+    setDataTax(sortedData)
+    setSortOrderTax(sortOrderTax === 'asc' ? 'desc' : 'asc');
+
+
+  };
+
+  const sortDataTaxQQS = () => {
+    const sortedData = [...get(taxes, "data.data", [])].sort((a, b) => {
+      if (sortOrderTax === 'asc') {
+        return a.vat_sum - b.vat_sum;
+      } else {
+        return b.vat_sum - a.vat_sum;
+      }
+    });
+
+    setDataTax(sortedData)
+    setSortOrderTax(sortOrderTax === 'asc' ? 'desc' : 'asc');
+
+
+  };
+
+  const handleSearchTax = (e) => {
+    setSearchQueryTax(e.target.value);
+  };
+
+  const filteredDataTax = dataTax.filter((item) => {
+    return (
+        get(item, 'mxik_code', '').toLowerCase().includes(searchQueryTax.toLowerCase()) ||
+        get(item, 'unit_measurment', '').toString().includes(searchQueryTax) ||
+        get(item, 'product_count', '').toString().includes(searchQueryTax)
+
+    );
+  });
+
+
+
+
+
+
+
 
   const { data: stock, isLoading: isLoadingStock } = useGetQuery({
     key: KEYS.apiBirja,
     url: URLS.apiBirja,
   });
 
-  // REAL MATERIALS API
-  const {
-    data: materials,
-    isLoading: materialLoading,
-    isError: materialError,
-    isFetching: isFetchingMaterials,
-  } = useQuery([KEYS.materialAvailableElon, pageSize], () =>
-    getMostOrdered({
-      url: URLS.materialAvailableElon,
-      params: { key: KEYS.viewCounts, page_size: pageSize },
-    }),
-  );
+  useEffect(() => {
+    if(get(stock, "data", [])) {
+      setDataStock(get(stock, "data", []))
+    }
+  }, [get(stock, "data", [])]);
+
+  const sortData = () => {
+    const sortedData = [...get(stock, "data", [])].sort((a, b) => {
+      if (sortOrderStock === 'asc') {
+        return a.price - b.price;
+      } else {
+        return b.price - a.price;
+      }
+    });
+
+    setDataStock(sortedData)
+    setSortOrderStock(sortOrderStock === 'asc' ? 'desc' : 'asc');
+
+
+  };
+
+  const handleSearch = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const filteredData = dataStock.filter((stockItem) => {
+    return (
+        get(stockItem, 'name', '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+        get(stockItem, 'rn', '').toString().includes(searchQuery) ||
+        get(stockItem, 'price', '').toString().includes(searchQuery) ||
+        get(stockItem, 'range', '').toString().includes(searchQuery)
+    );
+  });
+
 
   const {
     data: region,
@@ -79,15 +347,9 @@ export default function Home() {
     enabled: !!regionName,
   });
 
-  console.log(get(region, "data.results"));
 
-  if (materialLoading) {
-    return (
-      <Main>
-        <ContentLoader />
-      </Main>
-    );
-  }
+
+
   return (
     <Main>
       <Menu active={7} />
@@ -411,7 +673,7 @@ export default function Home() {
                       fill="none"
                       xmlns="http://www.w3.org/2000/svg"
                     >
-                      <g clip-path="url(#clip0_717_3428)">
+                      <g clipPath="url(#clip0_717_3428)">
                         <path
                           d="M18 6L6 18"
                           stroke="#000"
@@ -467,130 +729,161 @@ export default function Home() {
             )}
           </div>
         </div>
-        <div className={"grid grid-cols-12 mt-[30px] min-h-fit gap-x-[30px]"}>
+        <div className={"grid grid-cols-12 mt-[30px] min-h-fit gap-x-[30px] gap-y-[30px]"}>
           <div
-            onClick={() => toggleTabs(1)}
-            className={
-              "col-span-3 flex items-center justify-center flex-col gap-y-[10px] border-[2px]  min-h-[150px] rounded-[8px] cursor-pointer bg-sky-500 hover:bg-sky-600 transition-all duration-500 text-white"
-            }
+              onClick={() => toggleTabs(1)}
+              className={
+                `col-span-2 flex items-center ${tabs === 1 ? "bg-sky-700" : "bg-sky-500"} justify-center flex-col gap-y-[10px] border-[2px]  min-h-[150px] rounded-[8px] cursor-pointer  hover:bg-sky-600 transition-all duration-500 text-white`
+              }
           >
             <Image
-              src={"/images/building-material.png"}
-              alt={"stock-market"}
-              width={80}
-              height={80}
-            />
-            <h3>E'loni mavjud materiallar</h3>
-          </div>
-          <div
-            onClick={() => toggleTabs(2)}
-            className={
-              "col-span-3 flex items-center justify-center flex-col gap-y-[10px] border-[2px]  min-h-[150px] rounded-[8px] cursor-pointer bg-sky-500 hover:bg-sky-600 transition-all duration-500 text-white"
-            }
-          >
-            <Image
-              src={"/images/stock-market.png"}
-              alt={"stock-market"}
-              width={70}
-              height={70}
+                src={"/images/stock-market.png"}
+                alt={"stock-market"}
+                width={70}
+                height={70}
             />
             <h3>Tovar-xom ashyo birjasi</h3>
           </div>
           <div
-            className={
-              "col-span-3 border-[2px] min-h-[150px] rounded-[8px] cursor-pointer"
-            }
-          ></div>
-          <div
-            className={
-              "col-span-3 border-[2px] min-h-[150px] rounded-[8px] cursor-pointer"
-            }
-          ></div>
-        </div>
+              onClick={() => toggleTabs(2)}
+              className={
+                `col-span-2 flex items-center ${tabs === 2 ? "bg-sky-700" : "bg-sky-500"} justify-center flex-col gap-y-[10px] border-[2px]  min-h-[150px] rounded-[8px] cursor-pointer  hover:bg-sky-600 transition-all duration-500 text-white`
+              }
+          >
+            <Image
+                src={"/images/building-material.png"}
+                alt={"stock-market"}
+                width={80}
+                height={80}
+            />
+            <h3>Iqtisod va moliya vazirligi</h3>
 
-        {/*E'loni mavjud materiallar*/}
-        {tabs === 1 ? (
-          <div className="grid grid-cols-12 tablet:gap-x-8 gap-x-4 mt-[30px] min-h-fit">
-            <div className="col-span-12">
-              <Title>{t("E'loni mavjud materiallar")}</Title>
-            </div>
-
-            <Template active={isActive} handleClickFormat={setIsActive} />
-
-            {isFetchingMaterials && <OverlayLoader />}
-            {get(materials, "results", []).map((material) => (
-              <div
-                key={get(material, "material_code")}
-                className={` ${
-                  isActive === 1 && isActive === 2 && "col-span-3"
-                } ${isActive === 0 && "col-span-6"} col-span-3 mb-[30px] `}
-              >
-                <TemporaryProduct
-                  template={isActive === 0 || isActive === 2 ? "list" : "card"}
-                  data={material}
-                />
-              </div>
-            ))}
-            <div className="col-span-12 text-center">
-              <span
-                className={"cursor-pointer underline laptop:text-base text-sm"}
-                onClick={() => setPageSize((prev) => prev + 24)}
-              >
-                {t("Barcha mahsulotlarni ko’rish")}
-              </span>
-            </div>
           </div>
-        ) : (
-          ""
-        )}
+          <div
+              onClick={() => toggleTabs(3)}
+              className={
+                `col-span-2 flex items-center ${tabs === 3 ? "bg-sky-700" : "bg-sky-500"} justify-center flex-col gap-y-[10px] border-[2px]  min-h-[150px] rounded-[8px] cursor-pointer  hover:bg-sky-600 transition-all duration-500 text-white`
+              }
+          >
+            <Image
+                src={"/images/statistics.png"}
+                alt={"stock-market"}
+                width={70}
+                height={70}
+            />
+            <h3>Statistika agentligi</h3>
+          </div>
+          <div
+              onClick={() => toggleTabs(4)}
+              className={
+                `col-span-2 flex items-center justify-center ${tabs === 4 ? "bg-sky-700" : "bg-sky-500"} flex-col gap-y-[10px] border-[2px]  min-h-[150px] rounded-[8px] cursor-pointer  hover:bg-sky-600 transition-all duration-500 text-white`
+              }
+          >
+            <Image
+                src={"/images/customs.png"}
+                alt={"stock-market"}
+                width={70}
+                height={70}
+            />
+            <h3>Bojxona qo'mitasi</h3>
+          </div>
+          <div
+              onClick={() => toggleTabs(5)}
+              className={
+                `col-span-2 flex items-center justify-center ${tabs === 5 ? "bg-sky-700" : "bg-sky-500"} flex-col gap-y-[10px] border-[2px]  min-h-[150px] rounded-[8px] cursor-pointer  hover:bg-sky-600 transition-all duration-500 text-white`
+              }
+          >
+            <Image
+                src={"/images/arrangement.png"}
+                alt={"stock-market"}
+                width={70}
+                height={70}
+            />
+            <h3>Tartibga solish agentligi</h3>
+          </div>
+          <div
+              onClick={() => toggleTabs(6)}
+              className={
+                `col-span-2 flex items-center justify-center flex-col ${tabs === 6 ? "bg-sky-700" : "bg-sky-500"} gap-y-[10px] border-[2px]  min-h-[150px] rounded-[8px] cursor-pointer  hover:bg-sky-600 transition-all duration-500 text-white`
+              }
+          >
+            <Image
+                src={"/images/tax.png"}
+                alt={"stock-market"}
+                width={70}
+                height={70}
+            />
+            <h3>Soliq qo'mitasi</h3>
+          </div>
+        </div>
 
         {/*Tovar hom-ashyo birjasi*/}
 
-        {tabs === 2 ? (
-          <div className={"mt-[30px]"}>
-            {head(
-              get(stock, "data")?.map((item) => (
-                <p
-                  className={
-                    "text-[#fff] inline-block text-sm laptop:text-base my-[20px] px-[10px] py-[10px] bg-blue-500 rounded-[5px]"
-                  }
-                >
-                  {dayjs(get(item, "startdate")).format("DD.MM.YYYY")} -
+        {tabs === 1 ? (
+            <div className={"mt-[30px]"}>
+              <Title>
+                Tovar hom-ashyo birjasi
+              </Title>
+              <br/>
+              {head(
+                  dataStock.map((item, index) => (
+                      <p key={index}
+                         className={
+                           "text-[#fff] inline-block text-sm laptop:text-base my-[20px] px-[10px] py-[10px] bg-blue-500 rounded-[5px]"
+                         }
+                      >
+                      {dayjs(get(item, "startdate")).format("DD.MM.YYYY")} -
                   {dayjs(get(item, "enddate")).format("DD.MM.YYYY")}
+                        <span> muddatlar oralig'ida</span>
                 </p>
               )),
             )}
-            <table className="table-auto w-full">
-              <thead>
+              <div className={"col-span-12 flex items-center gap-x-8"}>
+                <input
+                    type="text"
+                    placeholder="Kerakli mahsulotni qidiring..."
+                    value={searchQuery}
+                    onChange={handleSearch}
+                    className="border px-[10px] py-[10px]  w-2/3 rounded-[6px]"
+                />
+                <button onClick={sortData} className={
+                  "text-[#fff] inline-block text-sm laptop:text-base my-[20px] px-[10px] py-[10px] bg-blue-500 rounded-[5px]"
+                }>
+                  Narx bo'yicha tartiblash {sortOrderStock === "asc" ? "(max-min)" : "(min-max)"}
+                </button>
+              </div>
+              <table className="table-auto w-full">
+                <thead className={"! text-black"}>
                 <tr>
                   <th
-                    className={
-                      "px-4 py-2 bg-gray-200 text-gray-600 uppercase font-semibold text-sm"
+                      className={
+                        "px-4 py-2 border bg-white  text-gray-600 uppercase font-semibold text-sm"
                     }
                   >
                     №
                   </th>
-                  <th className="px-4 py-2 bg-gray-200 text-gray-600 uppercase font-semibold text-sm">
+                  <th className="px-4 py-2 border  text-start bg-white text-gray-600 uppercase font-semibold text-sm">
                     Mahsulot nomi
                   </th>
-                  <th className="px-4 py-2 bg-gray-200 text-gray-600 uppercase font-semibold text-sm">
+                  <th className="px-4 py-2 border  bg-white text-gray-600 uppercase font-semibold text-sm">
                     Narxi
                   </th>
-                  <th className="px-4 py-2 bg-gray-200 text-gray-600 uppercase font-semibold text-sm">
+                  <th className="px-4 py-2 border  bg-white text-gray-600 uppercase font-semibold text-sm">
                     Narxlar orasidagi o'zgarish
                   </th>
                 </tr>
               </thead>
-              {get(stock, "data", []).map((stockItem) => (
-                <tbody className={"even:bg-white odd:bg-[#E2E6ED]"}>
+              {filteredData.map((stockItem, index) => (
+                <tbody key={index} className={"even:bg-white odd:bg-[#FBFBFC] text-black"}>
                   <tr>
-                    <td className="border px-4 py-2">{get(stockItem, "rn")}</td>
+                    <td className="border px-4 py-2 text-center">{get(stockItem, "rn")}</td>
                     <td className="border px-4 py-2">
                       {get(stockItem, "name")}
                     </td>
 
-                    <td className="border px-4 py-2">
-                      {get(stockItem, "price")}
+                    <td className="border px-4 py-2 text-center">
+                      <NumericFormat className={"bg-transparent"} value={parseInt(
+                          get(stockItem, "price")).toFixed(2)} thousandSeparator={" "} suffix={" so'm"}/>
                     </td>
 
                     <td className="border px-4 py-2">
@@ -604,6 +897,713 @@ export default function Home() {
         ) : (
           ""
         )}
+
+        {/*Iqtisodiyot va moliya vazirligi*/}
+        {tabs === 2 ? (
+            <div className="grid grid-cols-12 tablet:gap-x-8 gap-x-4 mt-[30px] min-h-fit">
+              <div className="col-span-12">
+                <Title>
+                  Iqtisod va moliya vazirligi
+                </Title>
+              </div>
+
+              <div className={"col-span-12 flex items-center gap-x-8"}>
+                <input
+                    type="text"
+                    placeholder="Kerakli mahsulotni qidiring..."
+                    value={searchQueryMinistry}
+                    onChange={handleSearchMinistry}
+                    className="border px-[10px] py-[10px]  w-2/3 rounded-[6px]"
+                />
+                <button onClick={sortDataMinistry} className={
+                  "text-[#fff] inline-block text-sm laptop:text-base my-[20px] px-[10px] py-[10px] bg-blue-500 rounded-[5px]"
+                }>
+                  Narx bo'yicha tartiblash {sortOrderMinistry === "asc" ? "(max-min)" : "(min-max)"}
+                </button>
+              </div>
+
+              <div className={"col-span-12"}>
+                <table className="table-auto w-full mt-[20px]">
+                  <thead>
+                  <tr>
+                    <th className={"px-4 py-2 bg-white border text-gray-600 uppercase font-semibold text-sm"}>№</th>
+
+                    <th
+                        className={
+                          "px-4 py-2 bg-white border text-gray-600 uppercase font-semibold text-sm"
+                        }
+                    >
+                      Mahsulot kodi
+                    </th>
+                    <th className="px-4 py-2 bg-white border text-gray-600 uppercase font-semibold text-sm">
+                      Mahsulot nomi
+                    </th>
+                    <th
+                        className={
+                          "px-4 py-2 bg-white border text-gray-600 uppercase font-semibold text-sm"
+                        }
+                    >
+                      Toifa kodi
+                    </th>
+                    <th className="px-4 py-2 bg-white border text-gray-600 uppercase font-semibold text-sm">
+                      Xususiyat nomi
+                    </th>
+
+                    <th className="px-4 py-2 bg-white border text-gray-600 uppercase font-semibold text-sm">
+                      Xususiyat qiymati
+                    </th>
+
+                    <th className="px-4 py-2 bg-white border text-gray-600 uppercase font-semibold text-sm">
+                      Narxi
+                    </th>
+                  </tr>
+                  </thead>
+                  {filteredDataMinistry.map((stockItem, index) => (
+                      <tbody key={index} className={"even:bg-white odd:bg-[#FBFBFC] text-black"}>
+                      <tr>
+                        <td className="border px-4 py-2 text-center">{index + 1}</td>
+
+                        <td className="border px-4 py-2 text-sm">
+                          {get(stockItem, "productCode")}
+                        </td>
+
+                        <td className="border px-4 py-2 text-sm">
+                          {get(stockItem, "productName")}
+                        </td>
+
+                        <td className="border px-4 py-2 text-sm">
+                          {get(stockItem, "categoryCode")}
+                        </td>
+
+                        <td className="border px-4 py-2 text-sm">
+                          {get(stockItem, "fieldName")}
+                        </td>
+                        <td className="border px-4 py-2 text-sm text-center">
+                          {get(stockItem, "fieldValue")}
+                        </td>
+
+
+                        <td className="border px-4 py-2 text-center">
+                          <NumericFormat value={0} suffix={".00 so'm"} className={"bg-transparent text-center"}/>
+                        </td>
+                      </tr>
+                      </tbody>
+                  ))}
+                </table>
+              </div>
+
+            </div>
+        ) : (
+            ""
+        )}
+
+
+        {tabs === 3 ? (
+            <div className={"grid grid-cols-12"}>
+              <div className={"col-span-12 my-[30px]"}>
+                <Title>
+                  Statistika agentligi
+                </Title>
+              </div>
+
+              <div className={"col-span-12"}>
+                <table className="table-auto w-full mt-[20px] !text-black">
+                  <thead>
+                  <tr>
+                    <th
+                        className={
+                          "px-4 py-2 bg-white border text-gray-600 uppercase font-semibold text-sm"
+                        }
+                    >
+                      Nomi
+                    </th>
+
+                    <th className={"px-4 py-2 bg-white border text-gray-600 uppercase font-semibold text-sm"}>Kodi</th>
+
+                    <th className="px-4 py-2 bg-white border text-gray-600 uppercase font-semibold text-sm">
+                      2010
+                    </th>
+                    <th className="px-4 py-2 bg-white border text-gray-600 uppercase font-semibold text-sm">
+                      2011
+                    </th>
+                    <th className="px-4 py-2 bg-white border text-gray-600 uppercase font-semibold text-sm">
+                      2012
+                    </th>
+                    <th className="px-4 py-2 bg-white border text-gray-600 uppercase font-semibold text-sm">
+                      2013
+                    </th>
+                    <th className="px-4 py-2 bg-white border text-gray-600 uppercase font-semibold text-sm">
+                      2014
+                    </th>
+                    <th className="px-4 py-2 bg-white border text-gray-600 uppercase font-semibold text-sm">
+                      2015
+                    </th>
+                    <th className="px-4 py-2 bg-white border text-gray-600 uppercase font-semibold text-sm">
+                      2016
+                    </th>
+                    <th className="px-4 py-2 bg-white border text-gray-600 uppercase font-semibold text-sm">
+                      2017
+                    </th>
+                    <th className="px-4 py-2 bg-white border text-gray-600 uppercase font-semibold text-sm">
+                      2018
+                    </th>
+                    <th className="px-4 py-2 bg-white border text-gray-600 uppercase font-semibold text-sm">
+                      2019
+                    </th>
+                    <th className="px-4 py-2 bg-white border text-gray-600 uppercase font-semibold text-sm">
+                      2020
+                    </th>
+                    <th className="px-4 py-2 bg-white border text-gray-600 uppercase font-semibold text-sm">
+                      2021
+                    </th>
+                    <th className="px-4 py-2 bg-white border text-gray-600 uppercase font-semibold text-sm">
+                      2022
+                    </th>
+                    <th className="px-4 py-2 bg-white border text-gray-600 uppercase font-semibold text-sm">
+                      2023
+                    </th>
+                    <th className="px-4 py-2 bg-white border text-gray-600 uppercase font-semibold text-sm">
+                      2024
+                    </th>
+
+                  </tr>
+                  </thead>
+
+                  {get(dataStatistics, "data")?.map((stat, index) => (
+                      <tbody key={index} className={"even:bg-white odd:bg-[#FBFBFC]"}>
+                      <tr>
+                        <td className="border px-4 py-2 text-center text-sm">
+                          {get(stat, "Klassifikator")}
+                        </td>
+
+                        <td className="border px-4 py-2 text-center text-sm">
+                          {get(stat, "Code")}
+                        </td>
+
+                        <td className="border px-4 py-2 text-sm">
+                          {get(stat, "2010-М01")} <br/>
+                          {get(stat, "2010-М02")} <br/>
+                          {get(stat, "2010-М03")} <br/>
+                          {get(stat, "2010-М04")} <br/>
+                          {get(stat, "2010-М05")} <br/>
+                          {get(stat, "2010-М06")} <br/>
+                          {get(stat, "2010-М07")} <br/>
+                          {get(stat, "2010-М08")} <br/>
+                          {get(stat, "2010-М09")} <br/>
+                          {get(stat, "2010-М10")} <br/>
+                          {get(stat, "2010-М11")} <br/>
+                          {get(stat, "2010-М12")} <br/>
+                        </td>
+                        <td className="border px-4 py-2 text-sm">
+                          {get(stat, "2011-М01")} <br/>
+                          {get(stat, "2011-М02")} <br/>
+                          {get(stat, "2011-М03")} <br/>
+                          {get(stat, "2011-М04")} <br/>
+                          {get(stat, "2011-М05")} <br/>
+                          {get(stat, "2011-М06")} <br/>
+                          {get(stat, "2011-М07")} <br/>
+                          {get(stat, "2011-М08")} <br/>
+                          {get(stat, "2011-М09")} <br/>
+                          {get(stat, "2011-М10")} <br/>
+                          {get(stat, "2011-М11")} <br/>
+                          {get(stat, "2011-М12")} <br/>
+                        </td>
+                        <td className="border px-4 py-2 text-sm">
+                          {get(stat, "2012-М01")} <br/>
+                          {get(stat, "2012-М02")} <br/>
+                          {get(stat, "2012-М03")} <br/>
+                          {get(stat, "2012-М04")} <br/>
+                          {get(stat, "2012-М05")} <br/>
+                          {get(stat, "2012-М06")} <br/>
+                          {get(stat, "2012-М07")} <br/>
+                          {get(stat, "2012-М08")} <br/>
+                          {get(stat, "2012-М09")} <br/>
+                          {get(stat, "2012-М10")} <br/>
+                          {get(stat, "2012-М11")} <br/>
+                          {get(stat, "2012-М12")} <br/>
+                        </td>
+                        <td className="border px-4 py-2 text-sm">
+                          {get(stat, "2013-M01")} <br/>
+                          {get(stat, "2013-M02")} <br/>
+                          {get(stat, "2013-M03")} <br/>
+                          {get(stat, "2013-M04")} <br/>
+                          {get(stat, "2013-M05")} <br/>
+                          {get(stat, "2013-M06")} <br/>
+                          {get(stat, "2013-M07")} <br/>
+                          {get(stat, "2013-M08")} <br/>
+                          {get(stat, "2013-M09")} <br/>
+                          {get(stat, "2013-M10")} <br/>
+                          {get(stat, "2013-M11")} <br/>
+                          {get(stat, "2013-M12")} <br/>
+                        </td>
+                        <td className="border px-4 py-2 text-sm">
+                          {get(stat, "2014-M01")} <br/>
+                          {get(stat, "2014-M02")} <br/>
+                          {get(stat, "2014-M03")} <br/>
+                          {get(stat, "2014-M04")} <br/>
+                          {get(stat, "2014-M05")} <br/>
+                          {get(stat, "2014-M06")} <br/>
+                          {get(stat, "2014-M07")} <br/>
+                          {get(stat, "2014-M08")} <br/>
+                          {get(stat, "2014-M09")} <br/>
+                          {get(stat, "2014-M10")} <br/>
+                          {get(stat, "2014-M11")} <br/>
+                          {get(stat, "2014-M12")} <br/>
+                        </td>
+                        <td className="border px-4 py-2 text-sm">
+                          {get(stat, "2015-M01")} <br/>
+                          {get(stat, "2015-M02")} <br/>
+                          {get(stat, "2015-M03")} <br/>
+                          {get(stat, "2015-M04")} <br/>
+                          {get(stat, "2015-M05")} <br/>
+                          {get(stat, "2015-M06")} <br/>
+                          {get(stat, "2015-M07")} <br/>
+                          {get(stat, "2015-M08")} <br/>
+                          {get(stat, "2015-M09")} <br/>
+                          {get(stat, "2015-M10")} <br/>
+                          {get(stat, "2015-M11")} <br/>
+                          {get(stat, "2015-M12")} <br/>
+                        </td>
+                        <td className="border px-4 py-2 text-sm">
+                          {get(stat, "2016-M01")} <br/>
+                          {get(stat, "2016-M02")} <br/>
+                          {get(stat, "2016-M03")} <br/>
+                          {get(stat, "2016-M04")} <br/>
+                          {get(stat, "2016-M05")} <br/>
+                          {get(stat, "2016-M06")} <br/>
+                          {get(stat, "2016-M07")} <br/>
+                          {get(stat, "2016-M08")} <br/>
+                          {get(stat, "2016-M09")} <br/>
+                          {get(stat, "2016-M10")} <br/>
+                          {get(stat, "2016-M11")} <br/>
+                          {get(stat, "2016-M12")} <br/>
+                        </td>
+                        <td className="border px-4 py-2 text-sm">
+                          {get(stat, "2017-M01")} <br/>
+                          {get(stat, "2017-M02")} <br/>
+                          {get(stat, "2017-M03")} <br/>
+                          {get(stat, "2017-M04")} <br/>
+                          {get(stat, "2017-M05")} <br/>
+                          {get(stat, "2017-M06")} <br/>
+                          {get(stat, "2017-M07")} <br/>
+                          {get(stat, "2017-M08")} <br/>
+                          {get(stat, "2017-M09")} <br/>
+                          {get(stat, "2017-M10")} <br/>
+                          {get(stat, "2017-M11")} <br/>
+                          {get(stat, "2017-M12")} <br/>
+                        </td>
+                        <td className="border px-4 py-2 text-sm">
+                          {get(stat, "2018-M01")} <br/>
+                          {get(stat, "2018-M02")} <br/>
+                          {get(stat, "2018-M03")} <br/>
+                          {get(stat, "2018-M04")} <br/>
+                          {get(stat, "2018-M05")} <br/>
+                          {get(stat, "2018-M06")} <br/>
+                          {get(stat, "2018-M07")} <br/>
+                          {get(stat, "2018-M08")} <br/>
+                          {get(stat, "2018-M09")} <br/>
+                          {get(stat, "2018-M10")} <br/>
+                          {get(stat, "2018-M11")} <br/>
+                          {get(stat, "2018-M12")} <br/>
+                        </td>
+                        <td className="border px-4 py-2 text-sm">
+                          {get(stat, "2019-M01")} <br/>
+                          {get(stat, "2019-M02")} <br/>
+                          {get(stat, "2019-M03")} <br/>
+                          {get(stat, "2019-M04")} <br/>
+                          {get(stat, "2019-M05")} <br/>
+                          {get(stat, "2019-M06")} <br/>
+                          {get(stat, "2019-M07")} <br/>
+                          {get(stat, "2019-M08")} <br/>
+                          {get(stat, "2019-M09")} <br/>
+                          {get(stat, "2019-M10")} <br/>
+                          {get(stat, "2019-M11")} <br/>
+                          {get(stat, "2019-M12")} <br/>
+                        </td>
+                        <td className="border px-4 py-2 text-sm">
+                          {get(stat, "2020-M01")} <br/>
+                          {get(stat, "2020-M02")} <br/>
+                          {get(stat, "2020-M03")} <br/>
+                          {get(stat, "2020-M04")} <br/>
+                          {get(stat, "2020-M05")} <br/>
+                          {get(stat, "2020-M06")} <br/>
+                          {get(stat, "2020-M07")} <br/>
+                          {get(stat, "2020-M08")} <br/>
+                          {get(stat, "2020-M09")} <br/>
+                          {get(stat, "2020-M10")} <br/>
+                          {get(stat, "2020-M11")} <br/>
+                          {get(stat, "2020-M12")} <br/>
+                        </td>
+                        <td className="border px-4 py-2 text-sm">
+                          {get(stat, "2021-M01")} <br/>
+                          {get(stat, "2021-M02")} <br/>
+                          {get(stat, "2021-M03")} <br/>
+                          {get(stat, "2021-M04")} <br/>
+                          {get(stat, "2021-M05")} <br/>
+                          {get(stat, "2021-M06")} <br/>
+                          {get(stat, "2021-M07")} <br/>
+                          {get(stat, "2021-M08")} <br/>
+                          {get(stat, "2021-M09")} <br/>
+                          {get(stat, "2021-M10")} <br/>
+                          {get(stat, "2021-M11")} <br/>
+                          {get(stat, "2021-M12")} <br/>
+                        </td>
+                        <td className="border px-4 py-2 text-sm">
+                          {get(stat, "2022-M01")} <br/>
+                          {get(stat, "2022-M02")} <br/>
+                          {get(stat, "2022-M03")} <br/>
+                          {get(stat, "2022-M04")} <br/>
+                          {get(stat, "2022-M05")} <br/>
+                          {get(stat, "2022-M06")} <br/>
+                          {get(stat, "2022-M07")} <br/>
+                          {get(stat, "2022-M08")} <br/>
+                          {get(stat, "2022-M09")} <br/>
+                          {get(stat, "2022-M10")} <br/>
+                          {get(stat, "2022-M11")} <br/>
+                          {get(stat, "2022-M12")} <br/>
+                        </td>
+                        <td className="border px-4 py-2 text-sm">
+                          {get(stat, "2023-M01")} <br/>
+                          {get(stat, "2023-M02")} <br/>
+                          {get(stat, "2023-M03")} <br/>
+                          {get(stat, "2023-M04")} <br/>
+                          {get(stat, "2023-M05")} <br/>
+                          {get(stat, "2023-M06")} <br/>
+                          {get(stat, "2023-M07")} <br/>
+                          {get(stat, "2023-M08")} <br/>
+                          {get(stat, "2023-M09")} <br/>
+                          {get(stat, "2023-M10")} <br/>
+                          {get(stat, "2023-M11")} <br/>
+                          {get(stat, "2023-M12")} <br/>
+                        </td>
+                        <td className="border px-4 py-2 text-sm">
+                          {get(stat, "2024-M01")} <br/>
+                          {get(stat, "2024-M02")} <br/>
+                          {get(stat, "2024-M03")} <br/>
+                          {get(stat, "2024-M04")} <br/>
+                          {get(stat, "2024-M05")} <br/>
+                          {get(stat, "2024-M06")} <br/>
+                          {get(stat, "2024-M07")} <br/>
+                          {get(stat, "2024-M08")} <br/>
+                          {get(stat, "2024-M09")} <br/>
+                          {get(stat, "2024-M10")} <br/>
+                          {get(stat, "2024-M11")} <br/>
+                          {get(stat, "2024-M12")} <br/>
+                        </td>
+
+                      </tr>
+                      </tbody>
+                  ))}
+
+
+                </table>
+              </div>
+            </div>
+        ) : tabs === 4 ?
+            <div className={"grid grid-cols-12"}>
+              <div className={"col-span-12 my-[30px]"}>
+                <Title>
+                  O'zbekiston Respublikasi iqtisodiyot va moliya vazirligi huzuridagi bojxona qo'mitasi
+                </Title>
+
+              </div>
+
+              <div className={"col-span-12 flex items-center gap-x-8"}>
+                <input
+                    type="text"
+                    placeholder="Kerakli mahsulotni qidiring..."
+                    value={searchQueryCustoms}
+                    onChange={handleSearchCustoms}
+                    className="border px-[10px] py-[10px]  w-2/3 rounded-[6px]"
+                />
+
+                <button onClick={sortDataCustoms} className={
+                  "text-[#fff] inline-block text-sm laptop:text-base my-[20px] px-[10px] py-[10px] bg-blue-500 rounded-[5px]"
+                }>
+                  Narx bo'yicha tartiblash {sortOrderCustoms === "asc" ? "(max-min)" : "(min-max)"}
+                </button>
+              </div>
+
+              <div className={"col-span-12"}>
+                <table className="table-auto w-full mt-[20px]">
+                  <thead>
+                  <tr>
+                    <th className={"px-4 py-2 bg-white border text-gray-600 uppercase font-semibold text-sm"}>№</th>
+
+                    <th
+                        className={
+                          "px-4 py-2 bg-white border text-gray-600 uppercase font-semibold text-sm"
+                        }
+                    >
+                      Mahsulot kodi
+                    </th>
+                    <th className="px-4 py-2 bg-white border text-gray-600 uppercase font-semibold text-sm">
+                      Massasi
+                    </th>
+                    <th
+                        className={
+                          "px-4 py-2 bg-white border text-gray-600 uppercase font-semibold text-sm"
+                        }
+                    >
+                      Narxi
+                    </th>
+                    <th className="px-4 py-2 bg-white border text-gray-600 uppercase font-semibold text-sm">
+                      Joylangan vaqti
+                    </th>
+
+                    <th className="px-4 py-2 bg-white border text-gray-600 uppercase font-semibold text-sm">
+                      Guruh nomi
+                    </th>
+
+                  </tr>
+                  </thead>
+                  {filteredDataCustoms.map((stockItem, index) => (
+                      <tbody key={index} className={"even:bg-white odd:bg-[#FBFBFC] text-black text-center"}>
+                      <tr>
+                        <td className="border px-4 py-2 text-center">{index + 1}</td>
+
+                        <td className="border px-4 py-2 text-sm">
+                          {get(stockItem, "codeTiftn")}
+                        </td>
+
+                        <td className="border px-4 py-2 text-sm">
+                          {get(stockItem, "netMass")}
+                        </td>
+
+                        <td className="border px-4 py-2 text-sm text-center">
+
+                          <NumericFormat
+                              displayType={"text"}
+                              className={"text-center bg-transparent"}
+                              thousandSeparator={" "}
+                              value={(get(stockItem, "value") * 1000 * parseInt(currencyUSD)).toFixed(2)}
+                              suffix={" so'm  "}
+                          />
+                        </td>
+
+                        <td className="border px-4 py-2 text-sm text-center">
+                          {dayjs(get(stockItem, "create_date")).format("DD.MM.YYYY HH:mm ", "Asia/Tashkent")}
+                        </td>
+                        <td className="border px-4 py-2 text-sm text-center">
+                          {get(stockItem, "codeName")}
+                        </td>
+
+                      </tr>
+                      </tbody>
+                  ))}
+                </table>
+
+              </div>
+            </div> : tabs === 5 ?
+                <div className={"grid grid-cols-12"}>
+                  <div className={"col-span-12 my-[30px]"}>
+                    <Title>
+                      O'zbekiston texnik jihatdan tartibga solish agentligi
+                    </Title>
+                  </div>
+
+                  <div className={"col-span-12 flex items-center gap-x-8"}>
+                    <input
+                        type="text"
+                        placeholder="Kerakli mahsulotni qidiring..."
+                        value={searchQueryTechnicTSA}
+                        onChange={handleSearchTechnicTSA}
+                        className="border px-[10px] py-[10px]  w-2/3 rounded-[6px]"
+                    />
+
+                    <button onClick={sortDataTechnicTSA} className={
+                      "text-[#fff] inline-block text-sm laptop:text-base my-[20px] px-[10px] py-[10px] bg-blue-500 rounded-[5px]"
+                    }>
+                      Narx bo'yicha tartiblash {sortOrderCustoms === "asc" ? "(max-min)" : "(min-max)"}
+                    </button>
+
+                  </div>
+
+                  <div className={"col-span-12"}>
+                    <table className="table-auto w-full my-[20px]">
+                      <thead>
+                      <tr>
+                        <th className={"px-4 py-2 bg-white border text-gray-600 uppercase font-semibold text-sm"}>№</th>
+
+                        <th
+                            className={
+                              "px-4 py-2 bg-white border text-gray-600 uppercase font-semibold text-sm"
+                            }
+                        >
+                          Nomi
+                        </th>
+                        <th className="px-4 py-2 bg-white border text-gray-600 uppercase font-semibold text-sm">
+                          GOST
+                        </th>
+                        <th
+                            className={
+                              "px-4 py-2 bg-white border text-gray-600 uppercase font-semibold text-sm"
+                            }
+                        >
+                          Kompaniya nomi
+                        </th>
+                        <th
+                            className={
+                              "px-4 py-2 bg-white border text-gray-600 uppercase font-semibold text-sm"
+                            }
+                        >
+                          Narxi
+                        </th>
+                        <th className="px-4 py-2 bg-white border text-gray-600 uppercase font-semibold text-sm">
+                          Davlat
+                        </th>
+
+
+                      </tr>
+                      </thead>
+                      {filteredDataTechnicTSA.map((item, index) => (
+                          <tbody key={index} className={"even:bg-white odd:bg-[#FBFBFC] text-black"}>
+                          <tr>
+                            <td className="border px-4 py-2 text-center">{index + 1}</td>
+
+                            <td className="border px-4 py-2 text-sm">
+                              {get(item, "name")}
+                            </td>
+
+                            <td className="border px-4 py-2 text-sm">
+                              {get(item, "gost")}
+                            </td>
+
+                            <td className="border px-4 py-2 text-sm">
+                              {get(item, "company_name")}
+                            </td>
+
+                            <td className="border px-4 py-2 text-sm text-center">
+
+                              <NumericFormat
+                                  displayType={"text"}
+                                  className={"text-center bg-transparent"}
+                                  thousandSeparator={" "}
+                                  value={get(item, "price")}
+                                  suffix={" so'm  "}
+                              />
+                            </td>
+
+
+                            <td className="border px-4 py-2 text-sm text-center">
+                              {get(item, "country")}
+                            </td>
+
+                          </tr>
+
+                          </tbody>
+
+                      ))}
+
+                    </table>
+                    <Pagination page={page} setPage={setPage} pageCount={get(technicsTSA, 'data.total_pages', 0)}/>
+
+                  </div>
+
+
+                </div> : tabs === 6 ?
+                    <div className={"grid grid-cols-12"}>
+                      <div className={"col-span-12 my-[30px]"}>
+                        <Title>
+                          O'zbekiston Respublikasi Vazirlar Mahkamasi huzuridagi Soliq qo'mitasi
+                        </Title>
+                      </div>
+
+                      <div className={"col-span-12 flex  items-center flex-wrap gap-x-4"}>
+                        <input
+                            type="text"
+                            placeholder="Kerakli mahsulotni qidiring..."
+                            value={searchQueryTax}
+                            onChange={handleSearchTax}
+                            className="border px-[10px] py-[10px]  w-2/3 rounded-[6px]"
+                        />
+                      </div>
+
+                      <div className={"col-span-12 flex items-center gap-x-4"}>
+                        <button onClick={sortDataTaxDelivery} className={
+                          "text-[#fff] inline-block text-sm laptop:text-base my-[20px] px-[10px] py-[10px] bg-blue-500 rounded-[5px]"
+                        }>
+                          Yetkazib berish narxi bo'yicha
+                          tartiblash {sortOrderCustoms === "asc" ? "(max-min)" : "(min-max)"}
+                        </button>
+
+                        <button onClick={sortDataTaxQQS} className={
+                          "text-[#fff] inline-block text-sm laptop:text-base my-[20px] px-[10px] py-[10px] bg-blue-500 rounded-[5px]"
+                        }>
+                          QQS narxi bo'yicha
+                          tartiblash {sortOrderCustoms === "asc" ? "(max-min)" : "(min-max)"}
+                        </button>
+                      </div>
+
+                      <div className={"col-span-12 my-[30px]"}>
+                        <table className="table-auto w-full">
+                          <thead>
+                          <tr>
+                            <th
+                                className={
+                                  "px-4 py-2 bg-white text-gray-600 uppercase font-semibold text-sm text-center"
+                                }
+                            >
+                              №
+                            </th>
+                            <th className="px-4 py-2  bg-white border text-gray-600  font-semibold text-sm text-center">
+                              Mxik kod
+                            </th>
+                            <th className="px-4 py-2 bg-white border text-gray-600  font-semibold text-sm">
+                              O'lchov birligi
+                            </th>
+                            <th className="px-4 py-2 bg-white border text-gray-600  font-semibold text-sm">
+                              Mahsulot soni
+                            </th>
+                            <th className="px-4 py-2 bg-white border text-gray-600  font-semibold text-sm">
+                              Faktura sanasi
+                            </th>
+                            <th className="px-4 py-2 bg-white border text-gray-600  font-semibold text-sm">
+                              Yetkazib berish narxi
+                            </th>
+                            <th className="px-4 py-2 bg-white border text-gray-600  font-semibold text-sm">
+                            QQS
+                            </th>
+                          </tr>
+                          </thead>
+                          {filteredDataTax.map((item, index) => (
+                              <tbody key={index} className={"even:bg-white odd:bg-[#FBFBFC] text-black text-sm text-center"}>
+                              <tr>
+                                <td className="border px-4 py-2">
+                                  {index + 1}
+                                </td>
+                                <td className="border px-4 py-2">
+                                  {get(item, "mxik_code")}
+                                </td>
+
+
+                                <td className="border px-4 py-2">
+                                  {get(item, "unit_measurment")}
+                                </td>
+
+                                <td className="border px-4 py-2">
+                                  {get(item, "product_count")}
+                                </td>
+
+                                <td className="border px-4 py-2">
+                                  {get(item, "factura_date")}
+                                </td>
+
+                                <td className="border px-4 py-2">
+                                  {<NumericFormat value={get(item, "delivery_sum")} thousandSeparator={" "} suffix={" so'm"} className={"text-center"}/>}
+
+                                </td>
+
+                                <td className="border px-4 py-2">
+                                  {<NumericFormat value={get(item, "vat_sum")} thousandSeparator={" "} suffix={" so'm"} className={"text-center"}/>}
+                                </td>
+                              </tr>
+                              </tbody>
+                          ))}
+                        </table>
+                      </div>
+
+                    </div> : ""}
       </Section>
     </Main>
   );
@@ -613,10 +1613,10 @@ export const getStaticProps = async (context) => {
   const queryClient = new QueryClient();
 
   await queryClient.prefetchQuery([KEYS.volumes], () =>
-    getVolumes({ url: URLS.volumes, params: { key: KEYS.materials } }),
+      getVolumes({url: URLS.volumes, params: {key: KEYS.materials}}),
   );
   await queryClient.prefetchQuery([KEYS.materials], () =>
-    getMostOrdered({ url: URLS.materials, params: { key: KEYS.viewCounts } }),
+      getMostOrdered({url: URLS.materials, params: {key: KEYS.viewCounts}}),
   );
 
   return {

@@ -19,7 +19,7 @@ const Lang = dynamic(() => import("@/components/lang"), {ssr: false});
 const Header = (toggleMenu) => {
     const [openMenu, setOpenMenu] = useState(false);
     const {data: session} = useSession();
-
+    const {data: sessionCustomer } = useSession();
     const {t} = useTranslation();
     const router = useRouter();
     const {state} = useCounter();
@@ -28,34 +28,32 @@ const Header = (toggleMenu) => {
         key: KEYS.getMe,
         url: URLS.getMe,
         headers: {token: token ?? `${get(session, "user.token")}`},
-        enabled: !!(get(session, "user.token") || token),
+        enabled: !!(get(session, 'user.token') && get(session, 'user.role') === 'company'),
     });
 
-    console.log(session, "company")
+
+    const { data: customer } = useGetQuery({
+      key: KEYS.getCustomer,
+      url: URLS.getCustomer,
+      headers: {token: token ?? `${get(sessionCustomer, "user.token")}`},
+      enabled: !!(get(session, 'user.token') && get(session, 'user.role') === 'customer'),
+    })
+
+    const handleLogout = async () => {
+
+        await signOut({ callbackUrl: "/" });
 
 
-
-    // useEffect(() => {
-    //     if (get(session, 'user.token')) {
-    //         setToken(get(session, 'user.token'));
-    //     }
-    // }, [session])
-
-    // const { data: customer } = useGetQuery({
-    //   key: KEYS.getCustomer,
-    //   url: URLS.getCustomer,
-    //   headers: { token: `${get(session, "user.token")}`},
-    //   enabled: !!get(session, "user.token"),
-    // })
+        localStorage.clear();
+        sessionStorage.clear();
+    };
 
     return (
         <header>
             <div className={" bg-[#182041]  py-2 relative"}>
                 <div className={"container text-white text-sm"}>
                     <marquee className="absolute top-0 pt-1 text-red-600">
-            <span className="font-semibold text-sm">
-              {t("Tizim test rejimida ishlamoqda")}
-            </span>
+           
                     </marquee>
                     <div className={"flex justify-between items-center"}>
                         <div className={"flex "}>
@@ -127,7 +125,7 @@ const Header = (toggleMenu) => {
                                     width={36}
                                     height={36}
                                     alt={"map"}
-                                    src={"/icons/shopping-bag.svg"}
+                                    src={"/images/shop-basket.png"}
                                 />
                                 <span
                                     className={
@@ -150,16 +148,18 @@ const Header = (toggleMenu) => {
                                 {/*<button className={"block text-base bg-transparent"}>*/}
                                 {/*  <Link href={"/dashboard"}>sign in</Link>*/}
                                 {/*</button>*/}
+
+
                                 {!get(session, "user.token") ? <button className={"text-lg"}>
-                                        <Link href={"/select-position"}>Ro'yxatdan o'tish</Link>
-                                    </button> :
+                                    <Link href={"/select-position"}>Ro'yxatdan o'tish</Link>
+                                </button> : get(session, "user.role") === "company" ?
                                     <div>
                                         <button
                                             onClick={() => router.push("/dashboard")}
                                             className={"block text-base bg-transparent"}
                                         >
 
-                                            {get(user, "data.company_ceo")}
+                                            Kabinetga kirish
                                         </button>
                                         <button
                                             className={"block text-base"}
@@ -167,7 +167,22 @@ const Header = (toggleMenu) => {
                                         >
                                             {t("Logout")}
                                         </button>
+                                    </div> : <div>
+                                        <button
+                                            onClick={() => router.push("/dashboard/customer/my-orders")}
+                                            className={"block text-base bg-transparent"}
+                                        >
+
+                                            Kabinetga kirish
+                                        </button>
+                                        <button
+                                            className={"block text-base"}
+                                            onClick={handleLogout}
+                                        >
+                                            {t("Logout")}
+                                        </button>
                                     </div>}
+
 
                                 {/*{*/}
                                 {/*    get(session, "user.role") === "company" ? <div>*/}

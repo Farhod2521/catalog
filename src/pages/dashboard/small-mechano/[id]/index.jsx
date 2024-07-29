@@ -10,8 +10,6 @@ import { debounce, find, get, head, isEmpty } from "lodash";
 import { toast } from "react-hot-toast";
 import Subheader from "@/layouts/dashboard/components/subheader";
 import { OverlayLoader } from "@/components/loader";
-import Select from "react-select";
-import Image from "next/image";
 import Dashboard from "@/layouts/dashboard";
 import useGetOneQuery from "@/hooks/api/useGetOneQuery";
 
@@ -122,7 +120,7 @@ const Index = () => {
 
     return (
         <Dashboard>
-            <Subheader title={"Mashina va Mexanizmlarda qo'shilgan e'lonni tahrirlash"} />
+            <Subheader title={"Kichik mexanizmlar bo'limiga qo'shilgan e'lonni tahrirlash"} />
             <div className={"p-7"}>
                 {(isLoadingSmallMechano || isLoading) && <OverlayLoader />}
                 <form
@@ -182,7 +180,7 @@ const Index = () => {
                     {/* Material tavsifi */}
                     <div className={"col-span-12 gap-x-[30px]"}>
                         <h4 className={"text-[#28366D] text-base my-[10px]"}>
-                            Kichik mexanizmlar tavsifi
+                            Mahsulot tavsifi
                         </h4>
                         <textarea
                             {...register("smallmechano_description")}
@@ -229,7 +227,7 @@ const Index = () => {
                     {/* Material o'lchov birligi */}
                     <div className={"col-span-6"}>
                         <h4 className={"text-[#28366D] text-base "}>
-                            Material o’lchov birligi
+                            Mahsulot o’lchov birligi
                         </h4>
                         <input
                             placeholder={"*qidiruv natijasiga ko’ra avtomatik to’ldiriladi"}
@@ -244,9 +242,9 @@ const Index = () => {
 
                     {/*Material miqdori*/}
                     <div className={"col-span-6"}>
-                        <h4 className={"text-[#28366D] text-base "}>Mashina va mexanizmlar miqdori</h4>
+                        <h4 className={"text-[#28366D] text-base "}>Mahsulot miqdori</h4>
                         <input
-                            placeholder={"Material miqdori"}
+                            placeholder={"Mahsulot miqdori"}
                             type={"number"}
                             defaultValue={get(oldData, "data.smallmechano_amount")}
                             {...register("smallmechano_amount", { required: true })}
@@ -259,7 +257,7 @@ const Index = () => {
                     {/*Material miqdor o’lchov birligi*/}
                     <div className={"col-span-6"}>
                         <h4 className={"text-[#28366D] text-base "}>
-                            Material miqdor o’lchov birligi
+                            Mahsulot miqdor o’lchov birligi
                         </h4>
                         <input
                             placeholder={"*qidiruv natijasiga ko’ra avtomatik to’ldiriladi"}
@@ -273,31 +271,7 @@ const Index = () => {
 
                     </div>
 
-                    {/*Material rasmi*/}
-                    {/*<div className={"col-span-6"}>*/}
-                    {/*    <h4 className={"text-[#28366D] text-base "}>Material rasmi</h4>*/}
-                    {/*    <label*/}
-                    {/*        htmlFor="dropzone-file"*/}
-                    {/*        className={*/}
-                    {/*            "shadow-2xl py-[20px] px-[30px] my-[10px] rounded-[5px] cursor-pointer  flex flex-col justify-center items-center  w-[320px] h-[224px] bg-white"*/}
-                    {/*        }*/}
-                    {/*    >*/}
-                    {/*        <Image*/}
-                    {/*            src={"/icons/upload.svg"}*/}
-                    {/*            alt={"upload"}*/}
-                    {/*            width={48}*/}
-                    {/*            height={48}*/}
-                    {/*        />*/}
-                    {/*        <p>yuklash</p>*/}
-                    {/*    </label>*/}
-                    {/*    <input*/}
-                    {/*        id={"dropzone-file"}*/}
-                    {/*        type={"file"}*/}
-                    {/*        defaultValue={get(oldData, "data.mmechano_image")}*/}
-                    {/*        accept={"image/png, image/jpeg, image/jpg"}*/}
-                    {/*        {...register("material_image")}*/}
-                    {/*    />*/}
-                    {/*</div>*/}
+
 
                     <div className={"col-span-6"}>
                         {/*Mahsulot sertifikati reestr raqami*/}

@@ -52,6 +52,11 @@ export const menuData = [
         title: "statistics",
         url: "/statistics",
       },
+      {
+        id: 2,
+        title: "smeta",
+        url: "/cmeta",
+      },
     ],
   },
 ];

@@ -119,67 +119,19 @@ const Index = () => {
 
     return (
         <Dashboard>
-            <Subheader title={"Mashina va Mexanizmlarda qo'shilgan e'lonni tahrirlash"} />
+            <Subheader title={"Qurilish ishlari bo'limiga qo'shilgan e'lonni tahrirlash"} />
             <div className={"p-7"}>
                 {(isLoadingWork || isLoading) && <OverlayLoader />}
                 <form
                     className={"grid grid-cols-12 gap-x-[30px]"}
                     onSubmit={handleSubmit(onSubmit)}
                 >
-                    {/*<div className={"col-span-12 mb-[10px]"}>*/}
-                    {/*  <h4 className={"text-[#28366D] text-base"}>Qidiruv</h4>*/}
-                    {/*</div>*/}
 
-                    {/*<div className={"col-span-12  gap-x-[30px]"}>*/}
-                    {/*  <Select*/}
-                    {/*    isClearable*/}
-                    {/*    placeholder={"nomni rus tilida kiriting"}*/}
-                    {/*    defaultValue={{*/}
-                    {/*      value: get(material, "material_csr_code"),*/}
-                    {/*      label: get(material, "material_name"),*/}
-                    {/*    }}*/}
-                    {/*    options={get(materials, "data.results", []).map((_material) => ({*/}
-                    {/*      value: get(_material, "material_csr_code"),*/}
-                    {/*      label: get(_material, "material_name"),*/}
-                    {/*    }))}*/}
-                    {/*    onKeyDown={debounce(function (e) {*/}
-                    {/*      if (e.target.value.length > 3) {*/}
-                    {/*        setSearch(e.target.value);*/}
-                    {/*      }*/}
-                    {/*    })}*/}
-                    {/*  />*/}
-                    {/*</div>*/}
-
-                    {/*  material nomi  */}
-
-                    {/*<div className={"col-span-12  gap-x-[30px]"}>*/}
-                    {/*  <h4 className={"text-[#28366D] text-base"}>Material nomi</h4>*/}
-                    {/*  <p className={"text-[12px] text-[#516164]"}>*/}
-                    {/*    *qidiruv natijasiga ko’ra avtomatik to’ldiriladi*/}
-                    {/*  </p>*/}
-                    {/*  <input*/}
-                    {/*    defaultValue={get(oldData, "data.material_сsr_code")}*/}
-                    {/*    placeholder={"*qidiruv natijasiga ko’ra avtomatik to’ldiriladi"}*/}
-                    {/*    className={*/}
-                    {/*      "py-[15px] px-[20px] w-full shadow-xl rounded-[5px] my-[10px]"*/}
-                    {/*    }*/}
-                    {/*    */}
-                    {/*    disabled={true}*/}
-                    {/*  />*/}
-                    {/*  <input*/}
-                    {/*    placeholder={*/}
-                    {/*      "Грунтовка полимерная для повышения адгезия битумно-полимерных мастик и герметиков при герметизации деформационных швов асфальта"*/}
-                    {/*    }*/}
-                    {/*    className={"hidden"}*/}
-                    {/*    value={1}*/}
-                    {/*    {...register("material_owner", { required: true })}*/}
-                    {/*  />*/}
-                    {/*</div>*/}
 
                     {/* Material tavsifi */}
                     <div className={"col-span-12 gap-x-[30px]"}>
                         <h4 className={"text-[#28366D] text-base my-[10px]"}>
-                            Qurilish ishlari tavsifi
+                            Mahsulot tavsifi
                         </h4>
                         <textarea
                             {...register("work_description")}
@@ -226,7 +178,7 @@ const Index = () => {
                     {/* Material o'lchov birligi */}
                     <div className={"col-span-6"}>
                         <h4 className={"text-[#28366D] text-base "}>
-                            Material o’lchov birligi
+                            Mahsulot o’lchov birligi
                         </h4>
                         <input
                             placeholder={"*qidiruv natijasiga ko’ra avtomatik to’ldiriladi"}
@@ -241,9 +193,9 @@ const Index = () => {
 
                     {/*Material miqdori*/}
                     <div className={"col-span-6"}>
-                        <h4 className={"text-[#28366D] text-base "}>Mashina va mexanizmlar miqdori</h4>
+                        <h4 className={"text-[#28366D] text-base "}>Mahsulot miqdori</h4>
                         <input
-                            placeholder={"Material miqdori"}
+                            placeholder={"Mahsulot miqdori"}
                             type={"number"}
                             defaultValue={get(oldData, "data.work_amount")}
                             {...register("work_amount", { required: true })}
@@ -256,7 +208,7 @@ const Index = () => {
                     {/*Material miqdor o’lchov birligi*/}
                     <div className={"col-span-6"}>
                         <h4 className={"text-[#28366D] text-base "}>
-                            Material miqdor o’lchov birligi
+                            Mahsulot miqdor o’lchov birligi
                         </h4>
                         <input
                             placeholder={"*qidiruv natijasiga ko’ra avtomatik to’ldiriladi"}

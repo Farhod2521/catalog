@@ -102,7 +102,7 @@ const Ads = () => {
 
     return (
         <Dashboard>
-            <Subheader title={'Qurilish ishlari e\'lonini qo\'yish '}/>
+            <Subheader title={'Qurilish ishlari bo\'limiga e\'lon qo\'yish '}/>
             <div className="p-7">
 
                 <form className={'grid grid-cols-12 gap-x-[30px]'} onSubmit={handleSubmit(onSubmit)}>
@@ -161,7 +161,7 @@ const Ads = () => {
                     </div>
 
                     <div className={'col-span-12  gap-x-[30px] mt-[30px]'}>
-                        <h4 className={'text-[#28366D] text-base'}>Qurilish ishlari kategoriyasi</h4>
+                        <h4 className={'text-[#28366D] text-base'}>Mahsulot kategoriyasi</h4>
                         <p className={'text-[12px] text-[#516164]'}>*qidiruv natijasiga ko’ra avtomatik to’ldiriladi</p>
                         <input
                             defaultValue={get(work, 'work_category_name')}
@@ -173,7 +173,7 @@ const Ads = () => {
 
                     <div className={'col-span-12   gap-x-[30px]'}>
 
-                        <h4 className={'text-[#28366D] text-base '}>Qurilish ishlari guruhi</h4>
+                        <h4 className={'text-[#28366D] text-base '}>Mahsulot guruhi</h4>
                         <p className={'text-[12px] text-[#516164]'}>*qidiruv natijasiga ko’ra avtomatik to’ldiriladi</p>
 
                         <input placeholder={'*qidiruv natijasiga ko’ra avtomatik to’ldiriladi'}
@@ -186,7 +186,7 @@ const Ads = () => {
 
 
                     <div className={'col-span-12  gap-x-[30px]'}>
-                        <h4 className={'text-[#28366D] text-base'}>Qurilish ishlari nomi</h4>
+                        <h4 className={'text-[#28366D] text-base'}>Mahsulot nomi</h4>
                         <p className={'text-[12px] text-[#516164]'}>*qidiruv natijasiga ko’ra avtomatik to’ldiriladi</p>
                         <input
 
@@ -207,7 +207,7 @@ const Ads = () => {
 
 
                     <div className={'col-span-12 gap-x-[30px]'}>
-                        <h4 className={'text-[#28366D] text-base my-[10px]'}>Qurilish ishlari tavsifi</h4>
+                        <h4 className={'text-[#28366D] text-base my-[10px]'}>Mahsulot tavsifi</h4>
                         <textarea {...register('work_description')} rows={5}
                                   className={'py-[15px] px-[20px] w-full shadow-xl rounded-[5px] my-[10px]'}></textarea>
                     </div>
@@ -215,7 +215,7 @@ const Ads = () => {
 
 
                     <div className={'col-span-6 '}>
-                        <h4 className={'text-[#28366D] text-base '}>Qurilish ishlari narxi</h4>
+                        <h4 className={'text-[#28366D] text-base '}>Mahsulot narxi</h4>
                         <div className={'flex items-center rounded-[5px]'}>
                             <input placeholder={''} type={'number'}
                                    {...register('work_rent_price', {required: true})}
@@ -234,7 +234,7 @@ const Ads = () => {
 
                     {/* Material o'lchov birligi */}
                     <div className={'col-span-6'}>
-                        <h4 className={'text-[#28366D] text-base '}>Qurilish ishlari o’lchov birligi</h4>
+                        <h4 className={'text-[#28366D] text-base '}>Mahsulot o’lchov birligi</h4>
                         <input placeholder={'*qidiruv natijasiga ko’ra avtomatik to’ldiriladi'}
                                className={'py-[15px] px-[20px] w-full shadow-xl rounded-[5px] my-[10px]'}
                                {...register('work_measure')}
@@ -246,7 +246,7 @@ const Ads = () => {
 
                     {/*Material miqdori*/}
                     <div className={'col-span-6'}>
-                        <h4 className={'text-[#28366D] text-base '}>Qurilish ishlari miqdori</h4>
+                        <h4 className={'text-[#28366D] text-base '}>Mahsulot miqdori</h4>
                         <input placeholder={'Kichik mexanizatsiya miqdori'} type={'number'}
                                {...register('work_amount', {required: true})}
                                className={'py-[15px] px-[20px] w-full shadow-xl rounded-[5px] my-[10px]'}
@@ -257,7 +257,7 @@ const Ads = () => {
 
                     {/*Material miqdor o’lchov birligi*/}
                     <div className={'col-span-6'}>
-                        <h4 className={'text-[#28366D] text-base '}>Qurilish ishlari miqdor o’lchov birligi</h4>
+                        <h4 className={'text-[#28366D] text-base '}>Mahsulot miqdor o’lchov birligi</h4>
                         <input placeholder={'*qidiruv natijasiga ko’ra avtomatik to’ldiriladi'}
                                className={'py-[15px] px-[20px] w-full shadow-xl rounded-[5px] my-[10px]'}
                                defaultValue={get(work, 'work_measure')}
@@ -269,7 +269,7 @@ const Ads = () => {
 
                     {/*Material rasmi*/}
                     <div className={'col-span-6'}>
-                        <h4 className={'text-[#28366D] text-base '}>Qurilish ishlari rasmi</h4>
+                        <h4 className={'text-[#28366D] text-base '}>Mahsulot rasmi</h4>
                         <label htmlFor="dropzone-file"
                                className={'shadow-2xl py-[20px] px-[30px] my-[10px] rounded-[5px] cursor-pointer  flex flex-col justify-center items-center  w-[320px] h-[224px] bg-white'}>
                             <Image src={'/icons/upload.svg'} alt={'upload'} width={48} height={48}/>

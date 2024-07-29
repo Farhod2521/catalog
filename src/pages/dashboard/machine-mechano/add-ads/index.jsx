@@ -84,7 +84,6 @@ const Ads = () => {
         formData.append('sertificate_blank_num', sertificate_blank_num)
         formData.append('sertificate_reestr_num', sertificate_reestr_num)
         formData.append('mmechano_owner', mmechano_owner)
-
         formData.append('mmechano_measure', mmechano_measure)
         addAds({
                 url: URLS.machineMechanoAddAds,
@@ -108,7 +107,7 @@ const Ads = () => {
 
     return (
         <Dashboard>
-            <Subheader title={'Mashina va mexanizmlar e’lonini qo’shish'}/>
+            <Subheader title={'Mashina va mexanizmlar bo\'limiga e’lon qo’shish'}/>
             <div className="p-7">
                 {(isLoadingMachineMechano || isLoading) && <OverlayLoader/>}
                 <form className={'grid grid-cols-12 gap-x-[30px]'} onSubmit={handleSubmit(onSubmit)}>
@@ -169,7 +168,7 @@ const Ads = () => {
 
                     {/*  material kategoriyasi  */}
                     <div className={'col-span-12  gap-x-[30px] mt-[30px]'}>
-                        <h4 className={'text-[#28366D] text-base'}>Mashina va mexanizmlar kategoriyasi</h4>
+                        <h4 className={'text-[#28366D] text-base'}>Mahsulot kategoriyasi</h4>
                         <p className={'text-[12px] text-[#516164]'}>*qidiruv natijasiga ko’ra avtomatik to’ldiriladi</p>
                         <input
                             defaultValue={get(machineMechano, 'mmechano_category_name')}
@@ -183,7 +182,7 @@ const Ads = () => {
 
                     <div className={'col-span-12   gap-x-[30px]'}>
 
-                        <h4 className={'text-[#28366D] text-base '}>Mashina va mexanizmlar guruhi</h4>
+                        <h4 className={'text-[#28366D] text-base '}>Mahsulot guruhi</h4>
                         <p className={'text-[12px] text-[#516164]'}>*qidiruv natijasiga ko’ra avtomatik to’ldiriladi</p>
 
                         <input placeholder={'*qidiruv natijasiga ko’ra avtomatik to’ldiriladi'}
@@ -196,7 +195,7 @@ const Ads = () => {
                     {/*  material nomi  */}
 
                     <div className={'col-span-12  gap-x-[30px]'}>
-                        <h4 className={'text-[#28366D] text-base'}>Mashina va mexanizmlar nomi</h4>
+                        <h4 className={'text-[#28366D] text-base'}>Mahsulot nomi</h4>
                         <p className={'text-[12px] text-[#516164]'}>*qidiruv natijasiga ko’ra avtomatik to’ldiriladi</p>
                         <input
 
@@ -217,7 +216,7 @@ const Ads = () => {
 
                     {/* Material tavsifi */}
                     <div className={'col-span-12 gap-x-[30px]'}>
-                        <h4 className={'text-[#28366D] text-base my-[10px]'}>Mashina va mexanizmlar tavsifi</h4>
+                        <h4 className={'text-[#28366D] text-base my-[10px]'}>Mahsulot tavsifi</h4>
                         <textarea {...register('mmechano_description')} rows={5}
                                   className={'py-[15px] px-[20px] w-full shadow-xl rounded-[5px] my-[10px]'}></textarea>
                     </div>
@@ -225,7 +224,7 @@ const Ads = () => {
 
                     {/* Material narxi */}
                     <div className={'col-span-6 '}>
-                        <h4 className={'text-[#28366D] text-base '}>Mashina va mexanizmlar narxi</h4>
+                        <h4 className={'text-[#28366D] text-base '}>Mahsulot narxi</h4>
                         <div className={'flex items-center rounded-[5px]'}>
                             <input placeholder={''} type={'number'}
                                    {...register('mmechano_rent_price', {required: true})}
@@ -244,7 +243,7 @@ const Ads = () => {
 
                     {/* Material o'lchov birligi */}
                     <div className={'col-span-6'}>
-                        <h4 className={'text-[#28366D] text-base '}>Mashina va mexanizmlar o’lchov birligi</h4>
+                        <h4 className={'text-[#28366D] text-base '}>Mahsulot o’lchov birligi</h4>
                         <input placeholder={'*qidiruv natijasiga ko’ra avtomatik to’ldiriladi'}
                                className={'py-[15px] px-[20px] w-full shadow-xl rounded-[5px] my-[10px]'}
                                {...register('mmechano_measure')}
@@ -256,7 +255,7 @@ const Ads = () => {
 
                     {/*Material miqdori*/}
                     <div className={'col-span-6'}>
-                        <h4 className={'text-[#28366D] text-base '}>Mashina va mexanizmlar miqdori</h4>
+                        <h4 className={'text-[#28366D] text-base '}>Mahsulot miqdori</h4>
                         <input placeholder={'Material miqdori'} type={'number'}
                                {...register('mmechano_amount', {required: true})}
                                className={'py-[15px] px-[20px] w-full shadow-xl rounded-[5px] my-[10px]'}
@@ -267,7 +266,7 @@ const Ads = () => {
 
                     {/*Material miqdor o’lchov birligi*/}
                     <div className={'col-span-6'}>
-                        <h4 className={'text-[#28366D] text-base '}>Mashina va mexanizmlar miqdor o’lchov birligi</h4>
+                        <h4 className={'text-[#28366D] text-base '}>Mahsulot miqdor o’lchov birligi</h4>
                         <input placeholder={'*qidiruv natijasiga ko’ra avtomatik to’ldiriladi'}
                                className={'py-[15px] px-[20px] w-full shadow-xl rounded-[5px] my-[10px]'}
                                defaultValue={get(machineMechano, 'mmechano_measure')}
@@ -279,7 +278,7 @@ const Ads = () => {
 
                     {/*Material rasmi*/}
                     <div className={'col-span-6'}>
-                        <h4 className={'text-[#28366D] text-base '}>Mashina va mexanizmlar rasmi</h4>
+                        <h4 className={'text-[#28366D] text-base '}>Mahsulot rasmi</h4>
                         <label htmlFor="dropzone-file"
                                className={'shadow-2xl py-[20px] px-[30px] my-[10px] rounded-[5px] cursor-pointer  flex flex-col justify-center items-center  w-[320px] h-[224px] bg-white'}>
                             <Image src={'/icons/upload.svg'} alt={'upload'} width={48} height={48}/>
